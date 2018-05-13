@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{namespace}};
+
+use Swagger\Annotation\Hydrator;
+use Swagger\Annotation\Validator;
+use Swagger\Annotation\Validators;
+
+/**
+ * @Hydrator(name="{{hydrator}}")
+ */
+class {{className}}
+{
+    {{#properties}}
+    /**
+     * @var {{#docTypeHint}}{{.}}{{/docTypeHint}}{{^docTypeHint}}{{typeHint}}{{/docTypeHint}}
+     {{#if validators}}
+     * @Validators({
+     {{/if}}
+     {{#validators}}
+     *  @Validator(name="{{.}}"),
+     {{/validators}}
+     {{#if validators}}
+     * })
+     {{/if}}
+     */
+    protected ${{name}}{{#defaultValue}} = {{.}}{{/defaultValue}};
+
+    {{/properties}}
+    {{#properties}}
+    /**
+     * @return {{#docTypeHint}}{{.}}{{/docTypeHint}}{{^docTypeHint}}{{typeHint}}{{/docTypeHint}}
+     */
+    public function {{getter}}(): {{typeHint}}
+    {
+        return $this->{{name}};
+    }
+
+    /**
+     * @param {{#docTypeHint}}{{.}}{{/docTypeHint}}{{^docTypeHint}}{{typeHint}}{{/docTypeHint}} ${{name}}
+     *
+     * @return self
+     */
+    public function {{setter}}({{typeHint}} ${{name}}): self
+    {
+        $this->{{name}} = ${{name}};
+
+        return $this;
+    }
+
+    {{/properties}}
+}

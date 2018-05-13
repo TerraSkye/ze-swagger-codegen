@@ -1,0 +1,43 @@
+<?php
+
+namespace {{namespace}};
+
+use Zend\Hydrator\HydratorInterface;
+use {{modelNamespace}}\{{modelName}};
+
+class {{className}} implements HydratorInterface
+{
+    /**
+     * @inheritDoc
+     *
+     * @param {{modelName}} $object
+     *
+     * @return {{modelName}}
+     */
+    public function hydrate(array $data, $object)
+    {
+        {{#properties}}
+        if (isset($data['{{name}}'])) {
+            $object->{{setter}}($data['{{name}}']);
+        }
+        {{/properties}}
+
+        return $object;
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @param {{modelName}} $object
+     *
+     * @return array
+     */
+    public function extract($object)
+    {
+        return [
+            {{#properties}}
+            '{{name}}' => $object->{{getter}}(),
+            {{/properties}}
+        ];
+    }
+}

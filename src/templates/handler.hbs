@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{namespace}};
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response\EmptyResponse;
+
+class {{className}} implements RequestHandlerInterface
+{
+    /**
+     * {@inheritDoc}
+     */
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        switch ($request->getMethod()) {
+            {{#operationMethods}}
+            case '{{.}}':
+                return $this->handle{{.}}($request);
+                break;
+            {{/operationMethods}}
+            default:
+                return new EmptyResponse(405);
+                break;
+        }
+    }
+    {{#operationMethods}}
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    protected function handle{{.}}(ServerRequestInterface $request) : ResponseInterface
+    {
+        return new EmptyResponse(501);
+    }
+    {{/operationMethods}}
+}

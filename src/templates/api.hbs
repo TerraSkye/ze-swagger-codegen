@@ -1,0 +1,48 @@
+<?php
+
+namespace {{namespace}};
+
+use GuzzleHttp\ClientInterface;
+
+class {{className}}
+{
+    /**
+     * @var ClientInterface
+     */
+    protected $client;
+
+    /**
+     * Constructor
+     * ---
+     * @param ClientInterface $client
+     */
+    public function __construct(ClientInterface $client)
+    {
+        $this->client = $client;
+    }
+    {{#operations}}
+
+    /**
+     * Operation {{operationId}}
+       {{#if summary}}
+     *
+     * {{summary}}
+       {{/if}}
+     *
+       {{#if description}}
+     * {{description}}
+     *
+       {{/if}}
+       {{#requestBody}}
+     * @param {{#if dataType}}{{dataType}}{{else}}{{#each mediaTypes}}{{dataType}}{{#unless @last}}|{{/unless}}{{/each}}{{/if}} $body
+       {{/requestBody}}
+       {{#parameters}}
+     * @param {{dataType}} ${{name}}
+       {{/parameters}}
+     */
+    public function {{operationId}}({{#requestBody}}{{#if dataType}}{{dataType}} {{/if}}$body{{#if ../parameters}}, {{/if}}{{/requestBody}}{{#parameters}}{{dataType}} ${{name}}{{#unless @last}}, {{/unless}}{{/parameters}})
+    {
+
+    }
+    {{/operations}}
+}

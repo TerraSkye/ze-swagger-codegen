@@ -1,0 +1,117 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Hydrator\ConfigProvider as HydratorConfigProvider;
+use Zend\Cache\ConfigProvider as CacheConfigProvider;
+use Swagger\V30\Hydrator;
+use Swagger\V30\Hydrator\ReflectionBasedAbstractFactory;
+use Zend\ServiceManager\Proxy\LazyServiceFactory;
+use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
+use Symfony\Component\Console\Application;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$application = new Application('swagger-codegen');
+
+$hydratorConfig = new HydratorConfigProvider();
+$cacheConfig = new CacheConfigProvider();
+
+$serviceManager = new ServiceManager(array_replace_recursive(
+    $hydratorConfig->getDependencyConfig(),
+    $cacheConfig->getDependencyConfig(),
+    [
+        'factories' => [
+            \Swagger\Command\Codegen::class => \Swagger\Command\Service\CodegenFactory::class,
+            \Swagger\Template::class => \Swagger\Service\TemplateFactory::class,
+            \Swagger\Generator\HandlerGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Generator\ModelGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Generator\RoutesGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Generator\HydratorGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Generator\DependenciesGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class
+        ],
+        'services' => [
+            'config' => [
+                'hydrators' => [
+                    'factories' => [
+                        Hydrator\DocumentHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\InfoHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ServerHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\PathItemHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ContactHydrator::class => InvokableFactory::class,
+                        Hydrator\LicenseHydrator::class => InvokableFactory::class,
+                        Hydrator\ServerVariableHydrator::class => InvokableFactory::class,
+                        Hydrator\OperationHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ParameterHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ReferenceHydrator::class => InvokableFactory::class,
+                        Hydrator\ExampleHydrator::class => InvokableFactory::class,
+                        Hydrator\MediaTypeHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\EncodingHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\HeaderHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\CallbackHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ExternalDocumentationHydrator::class => InvokableFactory::class,
+                        Hydrator\LinkHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\RequestBodyHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ResponseHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ResponsesHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\SecurityRequirementHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\SchemaHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\OAuthFlowHydrator::class => InvokableFactory::class,
+                        Hydrator\OAuthFlowsHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\SecuritySchemeHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\ComponentsHydrator::class => ReflectionBasedAbstractFactory::class,
+                        Hydrator\TagHydrator::class => ReflectionBasedAbstractFactory::class
+                    ],
+                    'lazy_services' => [
+                        'class_map' => [
+                            Hydrator\PathItemHydrator::class => Hydrator\PathItemHydrator::class,
+                            Hydrator\OperationHydrator::class => Hydrator\OperationHydrator::class,
+                            Hydrator\ParameterHydrator::class => Hydrator\ParameterHydrator::class,
+                            Hydrator\CallbackHydrator::class => Hydrator\CallbackHydrator::class,
+                            Hydrator\MediaTypeHydrator::class => Hydrator\MediaTypeHydrator::class
+                        ]
+                    ],
+                    'delegators' => [
+                        Hydrator\PathItemHydrator::class => [
+                            LazyServiceFactory::class
+                        ],
+                        Hydrator\OperationHydrator::class => [
+                            LazyServiceFactory::class
+                        ],
+                        Hydrator\ParameterHydrator::class => [
+                            LazyServiceFactory::class
+                        ],
+                        Hydrator\CallbackHydrator::class => [
+                            LazyServiceFactory::class
+                        ],
+                        Hydrator\MediaTypeHydrator::class => [
+                            LazyServiceFactory::class
+                        ]
+                    ]
+                ],
+                'caches' => [
+                    'Cache.Swagger.Template' => [
+                        'adapter' => [
+                            'name'    => 'filesystem',
+                            'options' => [
+                                'ttl' => 3600,
+                                'cache_dir' => getcwd() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'swagger'
+                            ],
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+));
+
+$commandList = [
+    $serviceManager->get(\Swagger\Command\Codegen::class)
+];
+
+$application->addCommands($commandList);
+
+$application->run();
