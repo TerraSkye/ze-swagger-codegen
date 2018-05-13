@@ -33,3 +33,15 @@ The Codegen will generate the following files:
 | `*/Handler/*` | Namespace to put all generated Handlers |
 | `*/Model/*` | Namespace to put all generated Models |
 | `*/Hydrator/*` | Namespace to put all generated Hydrators |
+
+## Model Middleware
+
+Every route that requires a Model in its RequestBody has a prepended Middleware: `Swagger\Middleware\ModelMiddleware`.
+
+The Middleware retrieves the RequestBody, hydrates the correct Model and validates the Model.
+
+When the RequestBody is invalid it simply returns all errors messages for every property in a 400 response.
+
+When the RequestBody is valid the hydrated model will be added as attribute to the request and can be retrieved inside the Handler:
+
+`$request->getAttribute('Model');`
