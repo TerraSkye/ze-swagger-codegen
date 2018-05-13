@@ -163,25 +163,33 @@ class Codegen extends Command
 
         $configPath = $this->projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
 
-        $this->routesGenerator->generateFromDocument($document, $namespace, $configPath);
+        $generated = $this->routesGenerator->generateFromDocument($document, $namespace, $configPath);
 
-        $output->writeln('<info>Generated routes</info>');
+        if ($generated) {
+            $output->writeln('<info>Generated routes</info>');
+        }
 
         foreach ($document->getComponents()->getSchemas() as $name => $schema) {
             /** @var Schema|Reference $schema **/
 
             $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
 
-            $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+            if (!is_null($generatedModel)) {
+                $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+            }
 
-            $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+            $generatedHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
 
-            $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
+            if (!is_null($generatedHydrator)) {
+                $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generatedHydrator));
+            }
         }
 
-        $this->dependenciesGenerator->generateFromDocument($document, $namespace, $configPath);
+        $generated = $this->dependenciesGenerator->generateFromDocument($document, $namespace, $configPath);
 
-        $output->writeln('<info>Generated dependencies config</info>');
+        if ($generated) {
+            $output->writeln('<info>Generated dependencies config</info>');
+        }
 
         return 0;
     }
