@@ -27,11 +27,12 @@ class CodegenFactorySpec extends ObjectBehavior
         Generator\ModelGenerator $modelGenerator,
         Generator\RoutesGenerator $routesGenerator,
         Generator\HydratorGenerator $hydratorGenerator,
-        Generator\DependenciesGenerator $dependenciesGenerator
+        Generator\DependenciesGenerator $dependenciesGenerator,
+        Generator\ApiGenerator $apiGenerator
     ) {
         $container->get('HydratorManager')->willReturn($hydratorPluginManager);
         $hydratorPluginManager->get(DocumentHydrator::class)->willReturn($documentHydrator);
-        
+
         $container->get(Template::class)->willReturn($template);
 
         $container->get(Generator\HandlerGenerator::class)->willReturn($handlerGenerator);
@@ -39,6 +40,7 @@ class CodegenFactorySpec extends ObjectBehavior
         $container->get(Generator\RoutesGenerator::class)->willReturn($routesGenerator);
         $container->get(Generator\HydratorGenerator::class)->willReturn($hydratorGenerator);
         $container->get(Generator\DependenciesGenerator::class)->willReturn($dependenciesGenerator);
+        $container->get(Generator\ApiGenerator::class)->willReturn($apiGenerator);
 
         $this->__invoke($container)->shouldBeAnInstanceOf(Codegen::class);
     }
