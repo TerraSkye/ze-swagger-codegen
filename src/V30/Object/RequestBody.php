@@ -83,9 +83,9 @@ class RequestBody
      *
      * @return self
      */
-    public function setRequired(bool $required): self
+    public function setRequired(?bool $required): self
     {
-        $this->required = $required;
+        $this->required = $required === null ? false : $required;
         return $this;
     }
 }
