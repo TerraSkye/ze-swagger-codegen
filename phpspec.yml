@@ -1,0 +1,16 @@
+bootstrap: phpspec-bootstrap.php
+suites:
+    swagger:
+        namespace: Swagger
+        src_path: "%paths.config%/src"
+        spec_path: "%paths.config%"
+        psr4_prefix: Swagger
+
+extensions:
+    LeanPHP\PhpSpec\CodeCoverage\CodeCoverageExtension:
+        format:
+            - html
+        output:
+            html: coverage
+        whitelist:
+            - src
