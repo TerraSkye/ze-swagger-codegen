@@ -97,7 +97,7 @@ class Operation
      *
      * @return self
      */
-    public function setSummary(string $summary): self
+    public function setSummary(?string $summary): self
     {
         $this->summary = $summary;
         return $this;
@@ -116,7 +116,7 @@ class Operation
      *
      * @return self
      */
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
