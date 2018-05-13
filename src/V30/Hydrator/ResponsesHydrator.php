@@ -42,7 +42,9 @@ class ResponsesHydrator implements HydratorInterface
      */
     public function hydrate(array $data, $object)
     {
-        $object->setDefault(isset($data['default']['$ref'])? $this->referenceHydrator->hydrate($data['default'], new Reference()): $this->responseHydrator->hydrate($data['default'], new Response()));
+        if(isset($data['default'])){
+            $object->setDefault(isset($data['default']['$ref'])? $this->referenceHydrator->hydrate($data['default'] , new Reference()): $this->responseHydrator->hydrate($data['default'], new Response()));
+        }
 
         foreach ($data as $statusCode => $response) {
             if ($statusCode >= 100 && $statusCode <= 599) {
