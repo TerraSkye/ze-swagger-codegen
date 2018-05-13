@@ -5,6 +5,7 @@ namespace Swagger\Generator;
 use Swagger\V30\Object\Document;
 use Swagger\V30\Object\PathItem;
 use Swagger\Template;
+use Swagger\Ignore;
 
 class HandlerGenerator extends AbstractGenerator
 {
@@ -14,13 +15,20 @@ class HandlerGenerator extends AbstractGenerator
     protected $templateService;
 
     /**
+     * @var Ignore
+     */
+    protected $ignoreService;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
+     * @param Ignore $ignoreService
      */
-    public function __construct(Template $templateService)
+    public function __construct(Template $templateService, Ignore $ignoreService)
     {
         $this->templateService = $templateService;
+        $this->ignoreService = $ignoreService;
     }
 
     /**
@@ -59,7 +67,7 @@ class HandlerGenerator extends AbstractGenerator
 
         $savePath = $handlerPath . $handlerName . '.php';
 
-        if (true || !is_file($savePath)) {
+        if (!$this->ignoreService->isIgnored($savePath)) {
             $handler = $this->templateService->render('handler', [
                 'className'  => $handlerName,
                 'namespace'  => $this->getNamespace($namespace),
@@ -70,6 +78,8 @@ class HandlerGenerator extends AbstractGenerator
 
             return $handlerName;
         }
+
+        return null;
     }
 
     /**

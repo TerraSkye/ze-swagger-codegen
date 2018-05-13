@@ -6,6 +6,7 @@ use Swagger\V30\Object\Document;
 use Swagger\V30\Object\Schema;
 use Swagger\V30\Object\Reference;
 use Swagger\Template;
+use Swagger\Ignore;
 
 class ModelGenerator extends AbstractGenerator
 {
@@ -15,13 +16,20 @@ class ModelGenerator extends AbstractGenerator
     protected $templateService;
 
     /**
+     * @var Ignore
+     */
+    protected $ignoreService;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
+     * @param Ignore $ignoreService
      */
-    public function __construct(Template $templateService)
+    public function __construct(Template $templateService, Ignore $ignoreService)
     {
         $this->templateService = $templateService;
+        $this->ignoreService = $ignoreService;
     }
 
     /**
@@ -59,7 +67,7 @@ class ModelGenerator extends AbstractGenerator
         $modelName = $this->toModelName($name);
         $path = $modelPath . $modelName . '.php';
 
-        if (true || !is_file($path)) {
+        if (!$this->ignoreService->isIgnored($path)) {
             $hydratorNamespace = $namespace . '\Hydrator';
 
             $model = $this->templateService->render('model', [
@@ -134,7 +142,7 @@ class ModelGenerator extends AbstractGenerator
     /**
      * @param  Document $document
      * @param  string   $namespace
-     * 
+     *
      * @return string[]
      */
     public function getModelClasses(Document $document, string $namespace)

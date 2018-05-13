@@ -9,6 +9,7 @@ use Swagger\V30\Object\MediaType;
 use Swagger\V30\Object\Operation;
 use Swagger\V30\Object\Reference;
 use Swagger\V30\Object\RequestBody;
+use Swagger\Ignore;
 
 class RoutesGenerator extends AbstractGenerator
 {
@@ -28,20 +29,28 @@ class RoutesGenerator extends AbstractGenerator
     protected $modelGenerator;
 
     /**
+     * @var Ignore
+     */
+    protected $ignoreService;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
      * @param HandlerGenerator $handlerGenerator
      * @param ModelGenerator $modelGenerator
+     * @param Ignore $ignoreService
      */
     public function __construct(
         Template $templateService,
         HandlerGenerator $handlerGenerator,
-        ModelGenerator $modelGenerator
+        ModelGenerator $modelGenerator,
+        Ignore $ignoreService
     ) {
         $this->templateService = $templateService;
         $this->handlerGenerator = $handlerGenerator;
         $this->modelGenerator = $modelGenerator;
+        $this->ignoreService = $ignoreService;
     }
 
     /**
@@ -51,19 +60,25 @@ class RoutesGenerator extends AbstractGenerator
      */
     public function generateFromDocument(Document $document, string $namespace, string $configPath)
     {
-        $routes = [];
-        foreach ($document->getPaths() as $path => $pathItem) {
-            /** @var PathItem $pathItem **/
-            $routes = $this->generateFromPathItem($path, $pathItem, $namespace, $routes);
-        }
-
-        $routes = $this->templateService->render('routes', [
-            'routes' => $routes
-        ]);
-
         $routeConfigPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'swagger.routes.php';
 
-        $this->writeFile($routeConfigPath, $routes);
+        if (!$this->ignoreService->isIgnored($routeConfigPath)) {
+            $routes = [];
+            foreach ($document->getPaths() as $path => $pathItem) {
+                /** @var PathItem $pathItem **/
+                $routes = $this->generateFromPathItem($path, $pathItem, $namespace, $routes);
+            }
+
+            $routes = $this->templateService->render('routes', [
+                'routes' => $routes
+            ]);
+
+            $this->writeFile($routeConfigPath, $routes);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

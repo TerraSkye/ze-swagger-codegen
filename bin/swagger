@@ -55,7 +55,8 @@ $serviceManager = new ServiceManager(array_replace_recursive(
             \Swagger\Generator\RoutesGenerator::class => ZendReflectionFactory::class,
             \Swagger\Generator\HydratorGenerator::class => ZendReflectionFactory::class,
             \Swagger\Generator\DependenciesGenerator::class => ZendReflectionFactory::class,
-            \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class
+            \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class,
+            \Swagger\Ignore::class => \Swagger\Service\IgnoreFactory::class
         ],
         'services' => [
             'config' => [

@@ -156,7 +156,9 @@ class Codegen extends Command
 
             $generatedHandler = $this->handlerGenerator->generateFromPathItem($pathItem, $path, $namespacePath, $namespace);
 
-            $output->writeln(sprintf('<info>Handler generated: %s</info>', $generatedHandler));
+            if (!is_null($generatedHandler)) {
+                $output->writeln(sprintf('<info>Handler generated: %s</info>', $generatedHandler));
+            }
         }
 
         $configPath = $this->projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
