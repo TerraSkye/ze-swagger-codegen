@@ -16,7 +16,8 @@
         "zendframework/zend-validator": "^2.10",
         "zordius/lightncandy": "^1.2",
         "zendframework/zend-filter": "^2.8",
-        "zendframework/zend-diactoros": "^1.7"
+        "zendframework/zend-diactoros": "^1.7",
+        "fig/http-message-util": "^1.1"
     },
     "require-dev": {
         "filp/whoops": "^2.1.12",
