@@ -38,17 +38,27 @@ class SecuritySchemeHydrator implements HydratorInterface
             $object->setDescription($data['description']);
         }
 
-        $object->setName($data['name']);
-        $object->setIn($data['in']);
+        if (isset($data['name'])) {
+            $object->setName($data['name']);
+        }
+
+        if (isset($data['in'])) {
+            $object->setIn($data['in']);
+        }
+
         $object->setScheme($data['scheme']);
 
         if (isset($data['bearerFormat'])) {
             $object->setBearerFormat($data['bearerFormat']);
         }
 
-        $object->setFlows($this->oAuthFlowsHydrator->hydrate($data['flows'], new OAuthFlows()));
+        if (isset($data['flows'])) {
+            $object->setFlows($this->oAuthFlowsHydrator->hydrate($data['flows'], new OAuthFlows()));
+        }
 
-        $object->setOpenIdConnectUrl($data['openIdConnectUrl']);
+        if (isset($data['openIdConnectUrl'])) {
+            $object->setOpenIdConnectUrl($data['openIdConnectUrl']);
+        }
 
         return $object;
     }

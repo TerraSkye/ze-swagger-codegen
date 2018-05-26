@@ -56,9 +56,9 @@ class Operation
     protected $deprecated = false;
 
     /**
-     * @var SecurityRequirement
+     * @var SecurityRequirement[]
      */
-    protected $security;
+    protected $security = [];
 
     /**
      * @var Server[]
@@ -283,21 +283,33 @@ class Operation
     }
 
     /**
-     * @return SecurityRequirement
+     * @return array|SecurityRequirement[]
      */
-    public function getSecurity(): SecurityRequirement
+    public function getSecurity(): array
     {
         return $this->security;
     }
 
     /**
-     * @param SecurityRequirement $security
+     * @param array|SecurityRequirement[] $security
      *
      * @return self
      */
-    public function setSecurity(SecurityRequirement $security): self
+    public function setSecurity(array $security): self
     {
         $this->security = $security;
+        return $this;
+    }
+
+    /**
+     * @param SecurityRequirement $securityRequirement
+     *
+     * @return self
+     */
+    public function addSecurityRequirement(SecurityRequirement $securityRequirement): self
+    {
+        array_push($this->security, $securityRequirement);
+
         return $this;
     }
 

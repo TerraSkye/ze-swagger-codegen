@@ -12,11 +12,11 @@ class SecurityRequirement
 
     /**
      * @param  string $name
-     * @param  string $value
+     * @param  mixed $value
      *
      * @return self
      */
-    public function setField(string $name, string $value): self
+    public function setField(string $name, $value): self
     {
         $this->fields[$name] = $value;
 
@@ -26,7 +26,7 @@ class SecurityRequirement
     /**
      * @param  string $name
      *
-     * @return string
+     * @return mixed
      */
     public function getField(string $name): string
     {

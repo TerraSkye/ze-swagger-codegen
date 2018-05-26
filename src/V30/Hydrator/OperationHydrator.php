@@ -128,8 +128,10 @@ class OperationHydrator implements HydratorInterface
             $object->setDeprecated($data['deprecated']);
         }
 
-        if(isset($data['security'])) {
-            $object->setSecurity($this->securityReqHydrator->hydrate($data['security'], new SecurityRequirement()));
+        if (isset($data['security'])) {
+            foreach ($data['security'] as $securityRequirement) {
+                $object->addSecurityRequirement($this->securityReqHydrator->hydrate($securityRequirement, new SecurityRequirement()));
+            }
         }
 
         if (isset($data['servers'])) {
@@ -159,7 +161,7 @@ class OperationHydrator implements HydratorInterface
             'requestBody' => $this->requestBodyHydrator->extract($object->getRequestBody()),
             'responses' => $object->getResponses(),
             'deprecated' => $object->getDeprecated(),
-            'security' => $this->securityReqHydrator->extract($object->getSecurity())
+            'security' => []
         ];
 
         foreach ($object->getParameters() as $parameter) {
@@ -172,6 +174,10 @@ class OperationHydrator implements HydratorInterface
 
         foreach ($object->getServers() as $server) {
             $data['servers'][] = $this->serverHydrator->extract($server);
+        }
+
+        foreach ($object->getSecurity() as $securityRequirement) {
+            $data['security'][] = $this->securityReqHydrator->extract($securityRequirement);
         }
 
         return $data;
