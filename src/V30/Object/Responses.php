@@ -44,7 +44,7 @@ class Responses
      */
     public function setStatusResponse(string $statusCode, $response): self
     {
-        if($response instanceof Response || $response instanceof Reference) {
+        if ($response instanceof Response || $response instanceof Reference) {
             $this->statusResponses[$statusCode] = $response;
         }
 
@@ -52,11 +52,11 @@ class Responses
     }
 
     /**
-     * @param  string $name
+     * @param  string $statusCode
      *
-     * @return string
+     * @return Response|Reference
      */
-    public function getStatusResponse(string $statusCode): string
+    public function getStatusResponse(string $statusCode)
     {
         return $this->statusResponses[$statusCode];
     }

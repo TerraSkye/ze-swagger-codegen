@@ -21,7 +21,7 @@ class Template
     protected $cache;
 
     /**
-     * @var Closure
+     * @var array|Closure[]
      */
     protected $usedTemplates = [];
 

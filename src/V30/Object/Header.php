@@ -41,7 +41,7 @@ class Header
     protected $allowReserved;
 
     /**
-     * @var Reference|
+     * @var Reference|Schema
      */
     protected $schema;
 
@@ -58,7 +58,7 @@ class Header
     /**
      * @var MediaType[]
      */
-    protected $content;
+    protected $content = [];
 
     /**
      * @return string
@@ -278,6 +278,18 @@ class Header
     public function setContent(array $content): self
     {
         $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @param string $mediaType
+     * @param  MediaType $content
+     * @return self
+     */
+    public function addContent(string $mediaType, MediaType $content): self
+    {
+        $this->content[$mediaType] = $content;
+
         return $this;
     }
 }

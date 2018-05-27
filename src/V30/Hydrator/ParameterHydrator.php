@@ -88,7 +88,7 @@ class ParameterHydrator implements HydratorInterface
             $object->setExample($data['example']);
         }
 
-        if(isset($data['examples'])) {
+        if (isset($data['examples'])) {
             foreach ($data['examples'] as $example) {
                 $object->addExample(
                     isset($example['$ref'])? $this->referenceHydrator->hydrate($example, new Reference()) : $this->exampleHydrator->hydrate($example, new Example())
@@ -96,8 +96,10 @@ class ParameterHydrator implements HydratorInterface
             }
         }
 
-        if(isset($data['content'])) {
-            $object->setContent($this->mediaTypeHydrator->hydrate($data['content'], new MediaType()));
+        if (isset($data['content'])) {
+            foreach ($data['content'] as $mediaType => $content) {
+                $object->addContent($mediaType, $this->mediaTypeHydrator->hydrate($content, new MediaType()));
+            }
         }
 
         return $object;
@@ -122,13 +124,18 @@ class ParameterHydrator implements HydratorInterface
             'style' => $object->getStyle(),
             'explode' => $object->getExplode(),
             'allowReserved' => $object->getAllowReserved(),
-            'schema' => $object instanceof Reference? $this->referenceHydrator->extract($object) : $this->schemaHydrator->extract($object),
+            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object->getSchema()) : $this->schemaHydrator->extract($object->getSchema()),
             'example' => $object->getExample(),
-            'content' => $this->mediaTypeHydrator->extract($object->getContent())
+            'examples' => [],
+            'content' => []
         ];
 
         foreach ($object->getExamples() as $example) {
             $data['examples'][] = $example instanceof Reference? $this->referenceHydrator->extract($example) : $this->exampleHydrator->extract($example);
+        }
+
+        foreach ($object->getContent() as $content) {
+            $data['content'][] = $this->mediaTypeHydrator->extract($content);
         }
 
         return $data;

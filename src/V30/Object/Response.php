@@ -131,14 +131,14 @@ class Response
 
     /**
      * @param string $name
-     * @param Link|Reference $content
+     * @param Link|Reference $link
      *
      * @return self
      */
     public function addLink(string $name, $link): self
     {
-        if($link instanceof Link || $link instanceof Reference) {
-            $this->content[$name] = $link;
+        if ($link instanceof Link || $link instanceof Reference) {
+            $this->links[$name] = $link;
         }
         return $this;
     }

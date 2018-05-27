@@ -158,18 +158,18 @@ class OperationHydrator implements HydratorInterface
             'description'  => $object->getDescription(),
             'externalDocs' => $this->externalDocsHydrator->extract($object->getExternalDocs()),
             'operationId'  => $object->getOperationId(),
-            'requestBody' => $this->requestBodyHydrator->extract($object->getRequestBody()),
+            'requestBody' => $object->getRequestBody() instanceof Reference? $this->referenceHydrator->extract($object->getRequestBody()):($object->getRequestBody()? $this->requestBodyHydrator->extract($object->getRequestBody()) : null),
             'responses' => $object->getResponses(),
             'deprecated' => $object->getDeprecated(),
             'security' => []
         ];
 
         foreach ($object->getParameters() as $parameter) {
-            $data['parameters'][] = $this->parameterHydrator->extract($parameter);
+            $data['parameters'][] = $parameter instanceof Reference? $this->referenceHydrator->extract($parameter) :$this->parameterHydrator->extract($parameter);
         }
 
         foreach ($object->getCallbacks() as $name => $callback) {
-            $data['callbacks'][$name] = $this->callbackHydrator->extract($callback);
+            $data['callbacks'][$name] = $callback instanceof Reference? $this->referenceHydrator->extract($callback) :$this->callbackHydrator->extract($callback);
         }
 
         foreach ($object->getServers() as $server) {

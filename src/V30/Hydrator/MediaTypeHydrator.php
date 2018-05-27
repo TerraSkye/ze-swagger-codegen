@@ -93,8 +93,8 @@ class MediaTypeHydrator implements HydratorInterface
     public function extract($object)
     {
         $data = [
-            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object) : $this->schemaHydrator->extract($object),
-            'example'  => $object->getUrl()
+            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object->getSchema()) : $this->schemaHydrator->extract($object->getSchema()),
+            'example'  => $object->getExample()
         ];
 
         foreach ($object->getExamples() as $example) {
@@ -102,7 +102,7 @@ class MediaTypeHydrator implements HydratorInterface
         }
 
         foreach ($object->getEncoding() as $encoding) {
-            $data['encoding'][] = $encoding instanceof Reference? $this->referenceHydrator->extract($encoding) : $this->encodingHydrator->extract($encoding);
+            $data['encoding'][] = $this->encodingHydrator->extract($encoding);
         }
 
         return $data;

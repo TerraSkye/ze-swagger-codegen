@@ -28,7 +28,7 @@ class SecurityRequirement
      *
      * @return mixed
      */
-    public function getField(string $name): string
+    public function getField(string $name)
     {
         return $this->fields[$name];
     }

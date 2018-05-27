@@ -51,7 +51,7 @@ class Parameter
     protected $allowReserved;
 
     /**
-     * @var Reference|
+     * @var Reference|Schema
      */
     protected $schema;
 
@@ -68,7 +68,7 @@ class Parameter
     /**
      * @var MediaType[]
      */
-    protected $content;
+    protected $content = [];
 
     /**
      * @return string
@@ -305,7 +305,7 @@ class Parameter
      */
     public function addExample($example)
     {
-        if($example instanceof Reference || $example instanceof Example) {
+        if ($example instanceof Reference || $example instanceof Example) {
             array_push($this->examples, $example);
         }
     }
@@ -326,6 +326,18 @@ class Parameter
     public function setContent(array $content): self
     {
         $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @param string $mediaType
+     * @param  MediaType $content
+     * @return self
+     */
+    public function addContent(string $mediaType, MediaType $content): self
+    {
+        $this->content[$mediaType] = $content;
+
         return $this;
     }
 }

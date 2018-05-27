@@ -26,9 +26,9 @@ class Callback
     /**
      * @param  string $name
      *
-     * @return string
+     * @return PathItem
      */
-    public function getExpression(string $name): string
+    public function getExpression(string $name): PathItem
     {
         return $this->expressions[$name];
     }

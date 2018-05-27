@@ -49,10 +49,14 @@ class HydratorGenerator extends AbstractGenerator
      */
     public function generateFromDocument(Document $document, string $namespacePath, string $namespace)
     {
-        foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-            /** @var Schema $schema **/
+        if ($document->getComponents()) {
+            foreach ($document->getComponents()->getSchemas() as $name => $schema) {
+                /** @var Schema $schema **/
 
-            $this->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                if ($schema instanceof Schema) {
+                    $this->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                }
+            }
         }
     }
 
@@ -118,15 +122,18 @@ class HydratorGenerator extends AbstractGenerator
         $modelNamespace = $this->modelGenerator->getNamespace($namespace);
 
         $hydrators = [];
-        foreach (array_keys($document->getComponents()->getSchemas()) as $name) {
-            /** @var Schema|Reference $schema **/
 
-            $modelName = $this->toModelName($name);
+        if ($document->getComponents()) {
+            foreach (array_keys($document->getComponents()->getSchemas()) as $name) {
+                /** @var Schema|Reference $schema **/
 
-            $hydrators[] = [
-                'hydrator' => $hydratorNamespace . '\\' . $modelName . 'Hydrator::class',
-                'model'    => $modelNamespace . '\\' . $modelName . '::class'
-            ];
+                $modelName = $this->toModelName($name);
+
+                $hydrators[] = [
+                    'hydrator' => $hydratorNamespace . '\\' . $modelName . 'Hydrator::class',
+                    'model'    => $modelNamespace . '\\' . $modelName . '::class'
+                ];
+            }
         }
 
         return $hydrators;

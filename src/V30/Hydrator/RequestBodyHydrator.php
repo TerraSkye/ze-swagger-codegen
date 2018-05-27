@@ -35,7 +35,7 @@ class RequestBodyHydrator implements HydratorInterface
     {
         $object->setDescription($data['description']);
 
-        if(isset($data['content'])) {
+        if (isset($data['content'])) {
             foreach ($data['content'] as $mediaType => $content) {
                 $object->addContent($mediaType, $this->mediaTypeHydrator->hydrate($content, new MediaType()));
             }

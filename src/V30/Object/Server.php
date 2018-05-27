@@ -11,7 +11,7 @@ class Server
     protected $url;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -78,7 +78,7 @@ class Server
     }
 
     /**
-     * @param ServerVariable $variable 
+     * @param ServerVariable $variable
      */
     public function addVariable(ServerVariable $variable)
     {

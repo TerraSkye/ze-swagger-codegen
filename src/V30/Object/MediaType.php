@@ -66,7 +66,7 @@ class MediaType
     }
 
     /**
-     * @return Example[]
+     * @return Example[]|Reference[]
      */
     public function getExamples(): array
     {
@@ -74,7 +74,7 @@ class MediaType
     }
 
     /**
-     * @param Example[] $examples
+     * @param Example[]|Reference[] $examples
      *
      * @return self
      */
@@ -82,6 +82,16 @@ class MediaType
     {
         $this->examples = $examples;
         return $this;
+    }
+
+    /**
+     * @param Reference|Example $example
+     */
+    public function addExample($example)
+    {
+        if($example instanceof Reference || $example instanceof Example) {
+            array_push($this->examples, $example);
+        }
     }
 
     /**

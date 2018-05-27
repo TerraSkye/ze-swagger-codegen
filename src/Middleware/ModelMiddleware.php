@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Swagger\Middleware;
 
+use RuntimeException;
+
 use Zend\Hydrator\HydratorInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -48,6 +50,10 @@ class ModelMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        if (!is_array($request->getParsedBody())) {
+            throw new RuntimeException('Parsed body is not an array.');
+        }
+
         $model = $this->hydrator->hydrate($request->getParsedBody(), $this->model);
 
         $messages = [];

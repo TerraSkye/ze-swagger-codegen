@@ -4,6 +4,7 @@ namespace Swagger\V30\Hydrator;
 
 use Swagger\V30\Object;
 use Zend\Hydrator\HydratorInterface;
+use Swagger\V30\Object\Header;
 use Swagger\V30\Object\Reference;
 
 class EncodingHydrator implements HydratorInterface
@@ -43,7 +44,7 @@ class EncodingHydrator implements HydratorInterface
 
         if (isset($data['headers'])) {
             foreach ($data['headers'] as $header) {
-                $object->addHeader(isset($header['$ref']) ? $this->referenceHydrator->hydrate($header, new Reference()) : $this->headerRepository->hydrate($header, new Header()));
+                $object->addHeader(isset($header['$ref']) ? $this->referenceHydrator->hydrate($header, new Reference()) : $this->headerHydrator->hydrate($header, new Header()));
             }
         }
 

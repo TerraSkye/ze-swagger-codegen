@@ -7,6 +7,7 @@ use Swagger\V30\Object\PathItem;
 use Swagger\Template;
 use Swagger\V30\Object\MediaType;
 use Swagger\V30\Object\Operation;
+use Swagger\V30\Object\Parameter;
 use Swagger\V30\Object\Reference;
 use Swagger\V30\Object\RequestBody;
 use Swagger\Ignore;
@@ -130,7 +131,7 @@ class RoutesGenerator extends AbstractGenerator
         }
 
         foreach ($operation->getParameters() as $parameter) {
-            if ($parameter->getIn() == 'path') {
+            if ($parameter instanceof Parameter && $parameter->getIn() == 'path') {
                 $path = str_replace('{' . $parameter->getName() . '}', ':' . $parameter->getName(), $path);
             }
         }

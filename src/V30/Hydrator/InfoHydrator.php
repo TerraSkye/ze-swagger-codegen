@@ -73,8 +73,8 @@ class InfoHydrator implements HydratorInterface
             'title' => $object->getTitle(),
             'description' => $object->getDescription(),
             'termsOfService' => $object->getTermsOfService(),
-            'contact' => $this->contactHydrator->extract($object->getContact()),
-            'license' => $this->licenseHydrator->extract($object->getLicense()),
+            'contact' => $object->getContact()? $this->contactHydrator->extract($object->getContact()) : null,
+            'license' => $object->getLicense()? $this->licenseHydrator->extract($object->getLicense()):null,
             'version' => $object->getVersion(),
         ];
     }

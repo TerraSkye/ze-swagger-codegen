@@ -180,9 +180,6 @@ class ComponentsHydrator implements HydratorInterface
      */
     public function extract($object)
     {
-        return [
-            'name' => $object->getName(),
-            'url'  => $object->getUrl()
-        ];
+        return [];
     }
 }

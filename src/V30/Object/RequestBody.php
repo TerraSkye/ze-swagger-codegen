@@ -79,13 +79,13 @@ class RequestBody
     }
 
     /**
-     * @param bool $required
+     * @param bool|null $required
      *
      * @return self
      */
     public function setRequired(?bool $required): self
     {
-        $this->required = $required === null ? false : $required;
+        $this->required = is_null($required) ? false : $required;
         return $this;
     }
 }
