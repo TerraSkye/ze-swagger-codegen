@@ -2,6 +2,8 @@
 
 namespace spec\Swagger\Generator;
 
+use Swagger\Ignore;
+
 use Swagger\Generator\HandlerGenerator;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -15,9 +17,9 @@ use org\bovigo\vfs\vfsStream;
  */
 class HandlerGeneratorSpec extends ObjectBehavior
 {
-    public function let(Template $templateService)
+    public function let(Template $templateService, Ignore $ignoreService)
     {
-        $this->beConstructedWith($templateService);
+        $this->beConstructedWith($templateService, $ignoreService);
     }
 
     public function it_is_initializable()
@@ -25,7 +27,7 @@ class HandlerGeneratorSpec extends ObjectBehavior
         $this->shouldHaveType(HandlerGenerator::class);
     }
 
-    public function it_can_generate_from_path_item(PathItem $pathItem, Template $templateService)
+    public function it_can_generate_from_path_item(PathItem $pathItem, Template $templateService, Ignore $ignoreService)
     {
         vfsStream::setup('namespacePath');
 
@@ -42,10 +44,12 @@ class HandlerGeneratorSpec extends ObjectBehavior
 
         $pathItem->getOperations()->willReturn([]);
 
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
+
         $this->generateFromPathItem($pathItem, 'test', vfsStream::url('namespacePath'), 'App')->shouldBeString();
     }
 
-    public function it_can_generate_from_document(Document $document, PathItem $pathItem, Template $templateService)
+    public function it_can_generate_from_document(Document $document, PathItem $pathItem, Template $templateService, Ignore $ignoreService)
     {
         vfsStream::setup('namespacePath');
 
@@ -65,6 +69,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
         ])->shouldBeCalled();
 
         $pathItem->getOperations()->willReturn([]);
+
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
 
         $this->generateFromDocument($document, vfsStream::url('namespacePath'), 'App');
     }

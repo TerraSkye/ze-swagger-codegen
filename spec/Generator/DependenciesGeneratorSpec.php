@@ -2,6 +2,7 @@
 
 namespace spec\Swagger\Generator;
 
+use Swagger\Ignore;
 use Swagger\Template;
 use Swagger\Generator\ModelGenerator;
 use Swagger\Generator\HydratorGenerator;
@@ -19,9 +20,10 @@ class DependenciesGeneratorSpec extends ObjectBehavior
     public function let(
         Template $templateService,
         HydratorGenerator $hydratorGenerator,
-        ModelGenerator $modelGenerator
+        ModelGenerator $modelGenerator,
+        Ignore $ignoreService
     ) {
-        $this->beConstructedWith($templateService, $hydratorGenerator, $modelGenerator);
+        $this->beConstructedWith($templateService, $hydratorGenerator, $modelGenerator, $ignoreService);
     }
 
     // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
@@ -34,7 +36,8 @@ class DependenciesGeneratorSpec extends ObjectBehavior
         Document $document,
         Template $templateService,
         HydratorGenerator $hydratorGenerator,
-        ModelGenerator $modelGenerator
+        ModelGenerator $modelGenerator,
+        Ignore $ignoreService
     ) {
         vfsStream::setup('configDir');
 
@@ -52,6 +55,8 @@ class DependenciesGeneratorSpec extends ObjectBehavior
 
         $modelGenerator->getModelClasses($document, Argument::type('string'))->willReturn(Argument::type('array'));
         $modelGenerator->getModelClasses($document, Argument::type('string'))->shouldBeCalled();
+
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
 
         $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR);
     }
