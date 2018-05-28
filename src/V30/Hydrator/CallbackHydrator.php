@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema\Callback;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\PathItem;
+use Swagger\V30\Schema\PathItem;
 
 class CallbackHydrator implements HydratorInterface
 {
@@ -26,9 +26,9 @@ class CallbackHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Callback $object
+     * @param Callback $object
      *
-     * @return Object\Callback
+     * @return Callback
      */
     public function hydrate(array $data, $object)
     {
@@ -42,7 +42,7 @@ class CallbackHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Callback $object
+     * @param Callback $object
      *
      * @return array
      */

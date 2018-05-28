@@ -2,7 +2,7 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
 
 class LicenseHydrator implements HydratorInterface
@@ -10,9 +10,9 @@ class LicenseHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\License $object
+     * @param Schema\License $object
      *
-     * @return Object\License
+     * @return Schema\License
      */
     public function hydrate(array $data, $object)
     {
@@ -28,7 +28,7 @@ class LicenseHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\License $object
+     * @param Schema\License $object
      *
      * @return array
      */

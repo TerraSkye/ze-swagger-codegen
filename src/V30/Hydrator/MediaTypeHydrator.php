@@ -2,12 +2,12 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema\MediaType;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Example;
-use Swagger\V30\Object\Encoding;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Example;
+use Swagger\V30\Schema\Encoding;
+use Swagger\V30\Schema\Reference;
 
 class MediaTypeHydrator implements HydratorInterface
 {
@@ -52,9 +52,9 @@ class MediaTypeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\MediaType $object
+     * @param MediaType $object
      *
-     * @return Object\MediaType
+     * @return MediaType
      */
     public function hydrate(array $data, $object)
     {
@@ -86,7 +86,7 @@ class MediaTypeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\MediaType $object
+     * @param MediaType $object
      *
      * @return array
      */

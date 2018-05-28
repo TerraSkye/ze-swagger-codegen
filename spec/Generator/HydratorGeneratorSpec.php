@@ -7,12 +7,12 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use org\bovigo\vfs\vfsStream;
 use Swagger\Template;
-use Swagger\V30\Object\Document;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Document;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Reference;
 use Swagger\Generator\ModelGenerator;
 
-use Swagger\V30\Object\Components;
+use Swagger\V30\Schema\Components;
 
 /**
  * @SuppressWarnings(PHPMD.CamelCaseMethodName)

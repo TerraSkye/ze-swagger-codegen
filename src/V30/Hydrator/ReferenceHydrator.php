@@ -2,7 +2,7 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
 
 class ReferenceHydrator implements HydratorInterface
@@ -10,9 +10,9 @@ class ReferenceHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Reference $object
+     * @param Schema\Reference $object
      *
-     * @return Object\Reference
+     * @return Schema\Reference
      */
     public function hydrate(array $data, $object)
     {
@@ -24,7 +24,7 @@ class ReferenceHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Reference $object
+     * @param Schema\Reference $object
      *
      * @return array
      */

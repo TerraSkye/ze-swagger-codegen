@@ -2,16 +2,16 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Server;
-use Swagger\V30\Object\Callback;
-use Swagger\V30\Object\Parameter;
-use Swagger\V30\Object\Reference;
-use Swagger\V30\Object\Responses;
-use Swagger\V30\Object\RequestBody;
-use Swagger\V30\Object\SecurityRequirement;
-use Swagger\V30\Object\ExternalDocumentation;
+use Swagger\V30\Schema\Server;
+use Swagger\V30\Schema\Callback;
+use Swagger\V30\Schema\Parameter;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\Responses;
+use Swagger\V30\Schema\RequestBody;
+use Swagger\V30\Schema\SecurityRequirement;
+use Swagger\V30\Schema\ExternalDocumentation;
 
 class OperationHydrator implements HydratorInterface
 {
@@ -88,9 +88,9 @@ class OperationHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Operation $object
+     * @param Schema\Operation $object
      *
-     * @return Object\Operation
+     * @return Schema\Operation
      */
     public function hydrate(array $data, $object)
     {
@@ -146,7 +146,7 @@ class OperationHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Operation $object
+     * @param Schema\Operation $object
      *
      * @return array
      */

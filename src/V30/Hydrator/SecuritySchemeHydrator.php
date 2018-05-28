@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\OAuthFlows;
+use Swagger\V30\Schema\OAuthFlows;
 
 class SecuritySchemeHydrator implements HydratorInterface
 {
@@ -26,9 +26,9 @@ class SecuritySchemeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\SecurityScheme $object
+     * @param Schema\SecurityScheme $object
      *
-     * @return Object\SecurityScheme
+     * @return Schema\SecurityScheme
      */
     public function hydrate(array $data, $object)
     {
@@ -66,7 +66,7 @@ class SecuritySchemeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\SecurityScheme $object
+     * @param Schema\SecurityScheme $object
      *
      * @return array
      */

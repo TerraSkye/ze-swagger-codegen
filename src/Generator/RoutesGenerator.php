@@ -2,14 +2,14 @@
 
 namespace Swagger\Generator;
 
-use Swagger\V30\Object\Document;
-use Swagger\V30\Object\PathItem;
+use Swagger\V30\Schema\Document;
+use Swagger\V30\Schema\PathItem;
 use Swagger\Template;
-use Swagger\V30\Object\MediaType;
-use Swagger\V30\Object\Operation;
-use Swagger\V30\Object\Parameter;
-use Swagger\V30\Object\Reference;
-use Swagger\V30\Object\RequestBody;
+use Swagger\V30\Schema\MediaType;
+use Swagger\V30\Schema\Operation;
+use Swagger\V30\Schema\Parameter;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\RequestBody;
 use Swagger\Ignore;
 
 class RoutesGenerator extends AbstractGenerator

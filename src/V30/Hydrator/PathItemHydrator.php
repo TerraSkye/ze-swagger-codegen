@@ -2,12 +2,12 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Operation;
-use Swagger\V30\Object\Parameter;
-use Swagger\V30\Object\Server;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Operation;
+use Swagger\V30\Schema\Parameter;
+use Swagger\V30\Schema\Server;
+use Swagger\V30\Schema\Reference;
 
 class PathItemHydrator implements HydratorInterface
 {
@@ -52,9 +52,9 @@ class PathItemHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\PathItem $object
+     * @param Schema\PathItem $object
      *
-     * @return Object\PathItem
+     * @return Schema\PathItem
      */
     public function hydrate(array $data, $object)
     {
@@ -120,7 +120,7 @@ class PathItemHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\PathItem $object
+     * @param Schema\PathItem $object
      *
      * @return array
      */

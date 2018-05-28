@@ -2,9 +2,9 @@
 
 namespace Swagger\Generator;
 
-use Swagger\V30\Object\Document;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Document;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Reference;
 use Swagger\Template;
 use Swagger\Ignore;
 

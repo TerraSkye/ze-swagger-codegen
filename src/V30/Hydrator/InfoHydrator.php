@@ -2,10 +2,10 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Contact;
-use Swagger\V30\Object\License;
+use Swagger\V30\Schema\Contact;
+use Swagger\V30\Schema\License;
 
 class InfoHydrator implements HydratorInterface
 {
@@ -32,9 +32,9 @@ class InfoHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Info $object
+     * @param Schema\Info $object
      *
-     * @return Object\Info
+     * @return Schema\Info
      */
     public function hydrate(array $data, $object)
     {
@@ -63,7 +63,7 @@ class InfoHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Info $object
+     * @param Schema\Info $object
      *
      * @return array
      */

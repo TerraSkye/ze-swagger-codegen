@@ -2,7 +2,7 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
 
 class SchemaHydrator implements HydratorInterface
@@ -24,9 +24,9 @@ class SchemaHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Schema $object
+     * @param Schema\Schema $object
      *
-     * @return Object\Schema
+     * @return Schema\Schema
      */
     public function hydrate(array $data, $object)
     {
@@ -40,12 +40,12 @@ class SchemaHydrator implements HydratorInterface
 
         if (isset($data['properties'])) {
             foreach ($data['properties'] as $name => $property) {
-                $object->setProperty($name, $this->hydrate($property, new Object\Schema($name)));
+                $object->setProperty($name, $this->hydrate($property, new Schema\Schema($name)));
             }
         }
 
         if (isset($data['items'])) {
-            $object->setItems(isset($data['items']['$ref'])? $this->referenceHydrator->hydrate($data['items'], new Object\Reference()) : $this->hydrate($data['items'], new Object\Schema()));
+            $object->setItems(isset($data['items']['$ref'])? $this->referenceHydrator->hydrate($data['items'], new Schema\Reference()) : $this->hydrate($data['items'], new Schema\Schema()));
         }
 
         if (isset($data['required'])) {
@@ -60,7 +60,7 @@ class SchemaHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Schema $object
+     * @param Schema\Schema $object
      *
      * @return array
      */
@@ -69,7 +69,7 @@ class SchemaHydrator implements HydratorInterface
         $data = [
             'type'   => $object->getType(),
             'format' => $object->getFormat(),
-            'items'  => $object->getItems() instanceof Object\Reference? $this->referenceHydrator->extract($object->getItems()): $this->extract($object->getItems())
+            'items'  => $object->getItems() instanceof Schema\Reference? $this->referenceHydrator->extract($object->getItems()): $this->extract($object->getItems())
         ];
 
         foreach ($object->getProperties() as $name => $property) {

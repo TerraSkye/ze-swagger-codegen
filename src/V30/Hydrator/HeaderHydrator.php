@@ -2,12 +2,12 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Example;
-use Swagger\V30\Object\MediaType;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Example;
+use Swagger\V30\Schema\MediaType;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\Header;
 
 class HeaderHydrator implements HydratorInterface
 {
@@ -49,9 +49,9 @@ class HeaderHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Header $object
+     * @param Header $object
      *
-     * @return Object\Header
+     * @return Header
      */
     public function hydrate(array $data, $object)
     {
@@ -106,7 +106,7 @@ class HeaderHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Header $object
+     * @param Header $object
      *
      * @return array
      */

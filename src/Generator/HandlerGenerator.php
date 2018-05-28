@@ -2,8 +2,8 @@
 
 namespace Swagger\Generator;
 
-use Swagger\V30\Object\Document;
-use Swagger\V30\Object\PathItem;
+use Swagger\V30\Schema\Document;
+use Swagger\V30\Schema\PathItem;
 use Swagger\Template;
 use Swagger\Ignore;
 
