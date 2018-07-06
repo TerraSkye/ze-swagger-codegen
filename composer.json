@@ -9,7 +9,7 @@
         "doctrine/annotations": "^1.6",
         "ocramius/proxy-manager": "^2.1",
         "roave/security-advisories": "dev-master",
-        "symfony/console": "^4.0",
+        "symfony/console": "^3.0 || ^4.0",
         "zendframework/zend-cache": "^2.7",
         "zendframework/zend-hydrator": "^2.3",
         "zendframework/zend-servicemanager": "^3.3",
