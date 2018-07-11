@@ -130,11 +130,11 @@ class RoutesGenerator extends AbstractGenerator
             }
         }
 
-        foreach ($operation->getParameters() as $parameter) {
+        /**foreach ($operation->getParameters() as $parameter) {
             if ($parameter instanceof Parameter && $parameter->getIn() == 'path') {
                 $path = str_replace('{' . $parameter->getName() . '}', ':' . $parameter->getName(), $path);
             }
-        }
+        }**/
 
         $handlerName = $this->handlerGenerator->getHandlerName($path);
 

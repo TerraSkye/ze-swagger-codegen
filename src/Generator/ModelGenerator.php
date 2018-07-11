@@ -84,6 +84,8 @@ class ModelGenerator extends AbstractGenerator
 
             return $modelName;
         }
+
+        return null;
     }
 
     /**
