@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\ServerVariable;
+use Swagger\V30\Schema\ServerVariable;
 
 class ServerHydrator implements HydratorInterface
 {
@@ -24,9 +24,9 @@ class ServerHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Server $object
+     * @param Schema\Server $object
      *
-     * @return Object\Server
+     * @return Schema\Server
      */
     public function hydrate(array $data, $object)
     {
@@ -48,7 +48,7 @@ class ServerHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Server $object
+     * @param Schema\Server $object
      *
      * @return array
      */

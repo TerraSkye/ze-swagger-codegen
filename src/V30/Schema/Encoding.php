@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Encoding
 {
@@ -50,7 +50,7 @@ class Encoding
     }
 
     /**
-     * @return Header[]
+     * @return Header[]|Reference[]
      */
     public function getHeaders(): array
     {
@@ -58,7 +58,7 @@ class Encoding
     }
 
     /**
-     * @param Header[] $headers
+     * @param Header[]|Reference[] $headers
      *
      * @return self
      */
@@ -70,7 +70,7 @@ class Encoding
 
     /**
      * @param  Header|Reference $header
-     * 
+     *
      * @return self
      */
     public function addHeader($header): self

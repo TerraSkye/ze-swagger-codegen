@@ -2,13 +2,14 @@
 
 namespace spec\Swagger\Generator;
 
+use Swagger\Ignore;
 use Swagger\Template;
 use Swagger\Generator\ModelGenerator;
 use Swagger\Generator\HydratorGenerator;
 use Swagger\Generator\DependenciesGenerator;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Swagger\V30\Object\Document;
+use Swagger\V30\Schema\Document;
 use org\bovigo\vfs\vfsStream;
 use Swagger\Ignore;
 

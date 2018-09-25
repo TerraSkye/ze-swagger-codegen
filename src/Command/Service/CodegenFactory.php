@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Swagger\Command\Service;
 
-use Swagger\Ignore;
 use Swagger\Template;
 use Psr\Container\ContainerInterface;
 use Swagger\Command\Codegen;
@@ -26,8 +25,6 @@ class CodegenFactory
     public function __invoke(ContainerInterface $container) : Codegen
     {
         $hydratorManager = $container->get('HydratorManager');
-
-        $container->get(Ignore::class);
 
         return new Codegen(
             $hydratorManager->get(DocumentHydrator::class),

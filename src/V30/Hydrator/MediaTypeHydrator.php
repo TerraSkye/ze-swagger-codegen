@@ -2,12 +2,12 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema\MediaType;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Example;
-use Swagger\V30\Object\Encoding;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Example;
+use Swagger\V30\Schema\Encoding;
+use Swagger\V30\Schema\Reference;
 
 class MediaTypeHydrator implements HydratorInterface
 {
@@ -52,9 +52,9 @@ class MediaTypeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\MediaType $object
+     * @param MediaType $object
      *
-     * @return Object\MediaType
+     * @return MediaType
      */
     public function hydrate(array $data, $object)
     {
@@ -86,15 +86,15 @@ class MediaTypeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\MediaType $object
+     * @param MediaType $object
      *
      * @return array
      */
     public function extract($object)
     {
         $data = [
-            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object) : $this->schemaHydrator->extract($object),
-            'example'  => $object->getUrl()
+            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object->getSchema()) : $this->schemaHydrator->extract($object->getSchema()),
+            'example'  => $object->getExample()
         ];
 
         foreach ($object->getExamples() as $example) {
@@ -102,7 +102,7 @@ class MediaTypeHydrator implements HydratorInterface
         }
 
         foreach ($object->getEncoding() as $encoding) {
-            $data['encoding'][] = $encoding instanceof Reference? $this->referenceHydrator->extract($encoding) : $this->encodingHydrator->extract($encoding);
+            $data['encoding'][] = $this->encodingHydrator->extract($encoding);
         }
 
         return $data;

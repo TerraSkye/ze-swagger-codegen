@@ -1,10 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
-class Header
+class Parameter
 {
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $in;
+
     /**
      * @var string
      */
@@ -41,7 +51,7 @@ class Header
     protected $allowReserved;
 
     /**
-     * @var Reference|
+     * @var Reference|Schema
      */
     protected $schema;
 
@@ -58,12 +68,50 @@ class Header
     /**
      * @var MediaType[]
      */
-    protected $content;
+    protected $content = [];
 
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return self
+     */
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIn(): string
+    {
+        return $this->in;
+    }
+
+    /**
+     * @param string $in
+     *
+     * @return self
+     */
+    public function setIn(string $in): self
+    {
+        $this->in = $in;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -73,7 +121,7 @@ class Header
      *
      * @return self
      */
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
@@ -257,7 +305,7 @@ class Header
      */
     public function addExample($example)
     {
-        if($example instanceof Reference || $example instanceof Example) {
+        if ($example instanceof Reference || $example instanceof Example) {
             array_push($this->examples, $example);
         }
     }
@@ -278,6 +326,18 @@ class Header
     public function setContent(array $content): self
     {
         $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @param string $mediaType
+     * @param  MediaType $content
+     * @return self
+     */
+    public function addContent(string $mediaType, MediaType $content): self
+    {
+        $this->content[$mediaType] = $content;
+
         return $this;
     }
 }

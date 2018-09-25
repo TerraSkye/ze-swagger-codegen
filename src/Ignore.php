@@ -38,6 +38,9 @@ class Ignore
             $rules = $rules[1];
 
             foreach ($rules as $rule) {
+                if (empty($rule)) {
+                    continue;
+                }
                 $paths = glob($path . DIRECTORY_SEPARATOR . $rule);
                 $filePaths = [];
                 for ($i = 0;$i < count($paths); $i++) {

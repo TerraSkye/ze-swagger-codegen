@@ -8,7 +8,7 @@ namespace Swagger\Annotation;
 class Validators
 {
     /**
-     * @var array<Swagger\Annotation\Validator>
+     * @var array<\Swagger\Annotation\Validator>
      *
      * @Required
      **/

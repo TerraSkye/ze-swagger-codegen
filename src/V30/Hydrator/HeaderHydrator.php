@@ -2,12 +2,12 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Example;
-use Swagger\V30\Object\MediaType;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Example;
+use Swagger\V30\Schema\MediaType;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\Header;
 
 class HeaderHydrator implements HydratorInterface
 {
@@ -49,35 +49,35 @@ class HeaderHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Parameter $object
+     * @param Header $object
      *
-     * @return Object\Parameter
+     * @return Header
      */
     public function hydrate(array $data, $object)
     {
         $object->setDescription($data['description']);
 
-        if(isset($data['required'])) {
+        if (isset($data['required'])) {
             $object->setRequired($data['required']);
         }
 
-        if(isset($data['deprecated'])) {
+        if (isset($data['deprecated'])) {
             $object->setDeprecated($data['deprecated']);
         }
 
-        if(isset($data['allowEmptyValue'])) {
+        if (isset($data['allowEmptyValue'])) {
             $object->setAllowEmptyValue($data['allowEmptyValue']);
         }
 
-        if(isset($data['style'])) {
+        if (isset($data['style'])) {
             $object->setStyle($data['style']);
         }
 
-        if(isset($data['explode'])) {
+        if (isset($data['explode'])) {
             $object->setExplode($data['explode']);
         }
 
-        if(isset($data['allowReserved'])) {
+        if (isset($data['allowReserved'])) {
             $object->setAllowReserved($data['allowReserved']);
         }
         $object->setSchema(isset($data['schema']['$ref'])? $this->referenceHydrator->hydrate($data['schema'], new Reference()) : $this->schemaHydrator->hydrate($data['schema'], new Schema()));
@@ -86,7 +86,7 @@ class HeaderHydrator implements HydratorInterface
             $object->setExample($data['example']);
         }
 
-        if(isset($data['examples'])) {
+        if (isset($data['examples'])) {
             foreach ($data['examples'] as $example) {
                 $object->addExample(
                     isset($example['$ref'])? $this->referenceHydrator->hydrate($example, new Reference()) : $this->exampleHydrator->hydrate($example, new Example())
@@ -95,7 +95,9 @@ class HeaderHydrator implements HydratorInterface
         }
 
         if (isset($data['content'])) {
-            $object->setContent($this->mediaTypeHydrator->hydrate($data['content'], new MediaType()));
+            foreach ($data['content'] as $mediaType => $content) {
+                $object->addContent($mediaType, $this->mediaTypeHydrator->hydrate($content, new MediaType()));
+            }
         }
 
         return $object;
@@ -104,7 +106,7 @@ class HeaderHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Parameter $object
+     * @param Header $object
      *
      * @return array
      */
@@ -118,13 +120,18 @@ class HeaderHydrator implements HydratorInterface
             'style' => $object->getStyle(),
             'explode' => $object->getExplode(),
             'allowReserved' => $object->getAllowReserved(),
-            'schema' => $object instanceof Reference? $this->referenceHydrator->extract($object) : $this->schemaHydrator->extract($object),
+            'schema' => $object->getSchema() instanceof Reference? $this->referenceHydrator->extract($object->getSchema()) : $this->schemaHydrator->extract($object->getSchema()),
             'example' => $object->getExample(),
-            'content' => $this->mediaTypeHydrator->extract($object->getContent())
+            'examples' => [],
+            'content' => []
         ];
 
         foreach ($object->getExamples() as $example) {
             $data['examples'][] = $example instanceof Reference? $this->referenceHydrator->extract($example) : $this->exampleHydrator->extract($example);
+        }
+
+        foreach ($object->getContent() as $content) {
+            $data['content'][] = $this->mediaTypeHydrator->extract($content);
         }
 
         return $data;

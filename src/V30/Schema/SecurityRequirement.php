@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class SecurityRequirement
 {
@@ -12,11 +12,11 @@ class SecurityRequirement
 
     /**
      * @param  string $name
-     * @param  string $value
+     * @param  mixed $value
      *
      * @return self
      */
-    public function setField(string $name, string $value): self
+    public function setField(string $name, $value): self
     {
         $this->fields[$name] = $value;
 
@@ -26,9 +26,9 @@ class SecurityRequirement
     /**
      * @param  string $name
      *
-     * @return string
+     * @return mixed
      */
-    public function getField(string $name): string
+    public function getField(string $name)
     {
         return $this->fields[$name];
     }

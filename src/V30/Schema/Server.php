@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Server
 {
@@ -11,7 +11,7 @@ class Server
     protected $url;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -78,7 +78,7 @@ class Server
     }
 
     /**
-     * @param ServerVariable $variable 
+     * @param ServerVariable $variable
      */
     public function addVariable(ServerVariable $variable)
     {

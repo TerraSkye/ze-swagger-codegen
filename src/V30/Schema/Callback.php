@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Callback
 {
@@ -26,9 +26,9 @@ class Callback
     /**
      * @param  string $name
      *
-     * @return string
+     * @return PathItem
      */
-    public function getExpression(string $name): string
+    public function getExpression(string $name): PathItem
     {
         return $this->expressions[$name];
     }

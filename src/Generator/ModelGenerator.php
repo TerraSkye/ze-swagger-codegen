@@ -2,9 +2,9 @@
 
 namespace Swagger\Generator;
 
-use Swagger\V30\Object\Document;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Reference;
+use Swagger\V30\Schema\Document;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Reference;
 use Swagger\Template;
 use Swagger\Ignore;
 
@@ -39,10 +39,15 @@ class ModelGenerator extends AbstractGenerator
      */
     public function generateFromDocument(Document $document, string $namespacePath, string $namespace)
     {
-        foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-            /** @var Schema $schema **/
+        if ($document->getComponents()) {
+            foreach ($document->getComponents()->getSchemas() as $name => $schema) {
+                /** @var Schema $schema **/
 
-            $this->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                if ($schema instanceof Schema) {
+                    $this->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                }
+                //@TODO Reference
+            }
         }
     }
 
@@ -60,8 +65,6 @@ class ModelGenerator extends AbstractGenerator
         string $namespacePath,
         string $namespace
     ): ?string {
-        /** @var Schema|Reference $schema **/
-
         $modelPath = $namespacePath . DIRECTORY_SEPARATOR . 'Model' . DIRECTORY_SEPARATOR;
 
         $modelName = $this->toModelName($name);
@@ -81,6 +84,8 @@ class ModelGenerator extends AbstractGenerator
 
             return $modelName;
         }
+
+        return null;
     }
 
     /**
@@ -110,8 +115,8 @@ class ModelGenerator extends AbstractGenerator
                 $properties[] = [
                     'name'      => $name,
                     'typeHint'  => $property->getPhpType(),
-                    'getter'    => 'get' . $this->getCamelcaseFilter()->filter($name),
-                    'setter'    => 'set' . $this->getCamelcaseFilter()->filter($name),
+                    'getter'    => 'get' . $this->getCamelCaseFilter()->filter($name),
+                    'setter'    => 'set' . $this->getCamelCaseFilter()->filter($name),
                     'validators' => $validators
                 ];
             }
@@ -129,8 +134,8 @@ class ModelGenerator extends AbstractGenerator
                     'typeHint'  => 'array',
                     'docTypeHint' => $name . '[]',
                     'defaultValue' => '[]',
-                    'getter'    => 'get' . $this->getCamelcaseFilter()->filter($name . 's'),
-                    'setter'    => 'set' . $this->getCamelcaseFilter()->filter($name . 's'),
+                    'getter'    => 'get' . $this->getCamelCaseFilter()->filter($name . 's'),
+                    'setter'    => 'set' . $this->getCamelCaseFilter()->filter($name . 's'),
                     'validators' => $validators
                 ];
             }
@@ -150,12 +155,14 @@ class ModelGenerator extends AbstractGenerator
         $modelNamespace = $this->getNamespace($namespace);
 
         $models = [];
-        foreach (array_keys($document->getComponents()->getSchemas()) as $name) {
-            /** @var Schema|Reference $schema **/
+        if ($document->getComponents()) {
+            foreach (array_keys($document->getComponents()->getSchemas()) as $name) {
+                /** @var Schema|Reference $schema **/
 
-            $modelName = $this->toModelName($name);
+                $modelName = $this->toModelName($name);
 
-            $models[] = $modelNamespace . '\\' . $modelName . '::class';
+                $models[] = $modelNamespace . '\\' . $modelName . '::class';
+            }
         }
 
         return $models;

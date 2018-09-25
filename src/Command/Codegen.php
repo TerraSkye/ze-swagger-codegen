@@ -11,14 +11,14 @@ use Swagger\Generator\RoutesGenerator;
 use Swagger\Generator\HydratorGenerator;
 use Swagger\Generator\DependenciesGenerator;
 use Swagger\Generator\ApiGenerator;
-use Swagger\V30\Object\Reference;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\PathItem;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\PathItem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Swagger\V30\Hydrator\DocumentHydrator;
-use Swagger\V30\Object\Document as V30Document;
+use Swagger\V30\Schema\Document as V30Document;
 use Swagger\Template;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -142,16 +142,20 @@ class Codegen extends Command
         $document = $this->parseFile($swaggerFile);
 
         if ($generateClient) {
-            foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-                /** @var Schema|Reference $schema **/
+            if ($document->getComponents()) {
+                foreach ($document->getComponents()->getSchemas() as $name => $schema) {
+                    /** @var Schema|Reference $schema **/
 
-                $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                    if ($schema instanceof Schema) {
+                        $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                        $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
 
-                $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+                        $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
 
-                $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-
-                $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
+                        $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
+                    }
+                    // @TODO Reference
+                }
             }
 
             $this->apiGenerator->generateFromDocument($document, $namespacePath, $namespace);
@@ -177,19 +181,24 @@ class Codegen extends Command
             $output->writeln('<info>Generated routes</info>');
         }
 
-        foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-            /** @var Schema|Reference $schema **/
+        if ($document->getComponents()) {
+            foreach ($document->getComponents()->getSchemas() as $name => $schema) {
+                /** @var Schema|Reference $schema **/
 
-            $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                if ($schema instanceof Schema) {
+                    $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
 
-            if (!is_null($generatedModel)) {
-                $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
-            }
+                    if (!is_null($generatedModel)) {
+                        $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+                    }
 
-            $generatedHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+                    $generatedHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
 
-            if (!is_null($generatedHydrator)) {
-                $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generatedHydrator));
+                    if (!is_null($generatedHydrator)) {
+                        $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generatedHydrator));
+                    }
+                }
+                //@TODO Reference
             }
         }
 

@@ -2,10 +2,10 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
 
-use Swagger\V30\Object\MediaType;
+use Swagger\V30\Schema\MediaType;
 
 class RequestBodyHydrator implements HydratorInterface
 {
@@ -27,15 +27,15 @@ class RequestBodyHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\RequestBody $object
+     * @param Schema\RequestBody $object
      *
-     * @return Object\RequestBody
+     * @return Schema\RequestBody
      */
     public function hydrate(array $data, $object)
     {
         $object->setDescription($data['description']);
 
-        if(isset($data['content'])) {
+        if (isset($data['content'])) {
             foreach ($data['content'] as $mediaType => $content) {
                 $object->addContent($mediaType, $this->mediaTypeHydrator->hydrate($content, new MediaType()));
             }
@@ -49,7 +49,7 @@ class RequestBodyHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\RequestBody $object
+     * @param Schema\RequestBody $object
      *
      * @return array
      */

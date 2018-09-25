@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\ExternalDocumentation;
+use Swagger\V30\Schema\ExternalDocumentation;
 
 class TagHydrator implements HydratorInterface
 {
@@ -25,9 +25,9 @@ class TagHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Tag $object
+     * @param Schema\Tag $object
      *
-     * @return Object\Tag
+     * @return Schema\Tag
      */
     public function hydrate(array $data, $object)
     {
@@ -44,7 +44,7 @@ class TagHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Tag $object
+     * @param Schema\Tag $object
      *
      * @return array
      */

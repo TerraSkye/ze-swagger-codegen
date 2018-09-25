@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Response
 {
@@ -131,14 +131,14 @@ class Response
 
     /**
      * @param string $name
-     * @param Link|Reference $content
+     * @param Link|Reference $link
      *
      * @return self
      */
     public function addLink(string $name, $link): self
     {
-        if($link instanceof Link || $link instanceof Reference) {
-            $this->content[$name] = $link;
+        if ($link instanceof Link || $link instanceof Reference) {
+            $this->links[$name] = $link;
         }
         return $this;
     }

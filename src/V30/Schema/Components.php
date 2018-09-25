@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Components
 {
@@ -51,7 +51,7 @@ class Components
     protected $callbacks = [];
 
     /**
-     * @return Schema[]
+     * @return Schema[]|Reference[]
      */
     public function getSchemas(): array
     {
@@ -289,7 +289,7 @@ class Components
     }
 
     /**
-     * @return Link[]
+     * @return Link[]|Reference[]
      */
     public function getLinks(): array
     {
@@ -323,7 +323,7 @@ class Components
     }
 
     /**
-     * @return Callback[]
+     * @return Callback[]|Reference[]
      */
     public function getCallbacks(): array
     {

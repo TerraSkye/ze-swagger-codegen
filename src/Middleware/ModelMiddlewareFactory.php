@@ -15,13 +15,13 @@ class ModelMiddlewareFactory
     /**
      * @param  ContainerInterface $container
      * @param  string             $requestedName
-     * 
+     *
      * @return ModelMiddleware
      */
     public function __invoke(ContainerInterface $container, string $requestedName) : ModelMiddleware
     {
         $hydratorManager = $container->get('HydratorManager');
-        $annotationReader = $container->get(\Swagger\AnnotationReader::class);
+        $annotationReader = $container->get('Swagger\AnnotationReader');
 
         $reflClass = new \ReflectionClass($requestedName);
 

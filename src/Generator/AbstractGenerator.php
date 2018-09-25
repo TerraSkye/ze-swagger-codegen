@@ -22,7 +22,7 @@ abstract class AbstractGenerator
         $tag = preg_replace('/\\]/', '', $tag);
         $tag = preg_replace('/[^\\w\\\\]+/', '_', $tag);
 
-        return $this->getCamelCaseFilter()->filter($tag);
+        return (string)$this->getCamelCaseFilter()->filter($tag);
     }
 
     /**

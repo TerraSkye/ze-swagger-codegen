@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
 class Operation
 {
     /**
-     * @var string[]|null
+     * @var string[]
      */
     protected $tags = [];
 
@@ -21,7 +21,7 @@ class Operation
     protected $description = null;
 
     /**
-     * @var ExternalDocumentation|null
+     * @var ExternalDocumentation
      */
     protected $externalDocs;
 
@@ -36,7 +36,7 @@ class Operation
     protected $parameters = [];
 
     /**
-     * @var RequestBody|null
+     * @var RequestBody|Reference|null
      */
     protected $requestBody;
 
@@ -56,9 +56,9 @@ class Operation
     protected $deprecated = false;
 
     /**
-     * @var SecurityRequirement
+     * @var SecurityRequirement[]
      */
-    protected $security;
+    protected $security = [];
 
     /**
      * @var Server[]
@@ -194,21 +194,23 @@ class Operation
     }
 
     /**
-     * @return RequestBody|null
+     * @return RequestBody|Reference|null
      */
-    public function getRequestBody(): ?RequestBody
+    public function getRequestBody()
     {
         return $this->requestBody;
     }
 
     /**
-     * @param RequestBody|null $requestBody
+     * @param RequestBody|Reference|null $requestBody
      *
      * @return self
      */
-    public function setRequestBody(RequestBody $requestBody = null): self
+    public function setRequestBody($requestBody = null): self
     {
-        $this->requestBody = $requestBody;
+        if ($requestBody instanceof RequestBody || $requestBody instanceof Reference) {
+            $this->requestBody = $requestBody;
+        }
         return $this;
     }
 
@@ -232,7 +234,7 @@ class Operation
     }
 
     /**
-     * @return Callback[]
+     * @return Callback[]|Reference[]
      */
     public function getCallbacks(): array
     {
@@ -252,13 +254,15 @@ class Operation
 
     /**
      * @param string $name
-     * @param Callback $callback
+     * @param Callback|Reference $callback
      *
      * @return self
      */
-    public function addCallback(string $name, Callback $callback): self
+    public function addCallback(string $name, $callback): self
     {
-        $this->callbacks[$name] = $callback;
+        if ($callback instanceof Callback || $callback instanceof Reference) {
+            $this->callbacks[$name] = $callback;
+        }
 
         return $this;
     }
@@ -283,21 +287,33 @@ class Operation
     }
 
     /**
-     * @return SecurityRequirement
+     * @return array|SecurityRequirement[]
      */
-    public function getSecurity(): SecurityRequirement
+    public function getSecurity(): array
     {
         return $this->security;
     }
 
     /**
-     * @param SecurityRequirement $security
+     * @param array|SecurityRequirement[] $security
      *
      * @return self
      */
-    public function setSecurity(SecurityRequirement $security): self
+    public function setSecurity(array $security): self
     {
         $this->security = $security;
+        return $this;
+    }
+
+    /**
+     * @param SecurityRequirement $securityRequirement
+     *
+     * @return self
+     */
+    public function addSecurityRequirement(SecurityRequirement $securityRequirement): self
+    {
+        array_push($this->security, $securityRequirement);
+
         return $this;
     }
 

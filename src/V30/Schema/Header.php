@@ -1,20 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Swagger\V30\Object;
+namespace Swagger\V30\Schema;
 
-class Parameter
+class Header
 {
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $in;
-
     /**
      * @var string
      */
@@ -51,7 +41,7 @@ class Parameter
     protected $allowReserved;
 
     /**
-     * @var Reference|
+     * @var Reference|Schema
      */
     protected $schema;
 
@@ -68,50 +58,12 @@ class Parameter
     /**
      * @var MediaType[]
      */
-    protected $content;
+    protected $content = [];
 
     /**
      * @return string
      */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return self
-     */
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIn(): string
-    {
-        return $this->in;
-    }
-
-    /**
-     * @param string $in
-     *
-     * @return self
-     */
-    public function setIn(string $in): self
-    {
-        $this->in = $in;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -121,7 +73,7 @@ class Parameter
      *
      * @return self
      */
-    public function setDescription(?string $description): self
+    public function setDescription(string $description): self
     {
         $this->description = $description;
         return $this;
@@ -326,6 +278,18 @@ class Parameter
     public function setContent(array $content): self
     {
         $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @param string $mediaType
+     * @param  MediaType $content
+     * @return self
+     */
+    public function addContent(string $mediaType, MediaType $content): self
+    {
+        $this->content[$mediaType] = $content;
+
         return $this;
     }
 }

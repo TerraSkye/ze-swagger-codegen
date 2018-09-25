@@ -2,18 +2,18 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Link;
-use Swagger\V30\Object\Header;
-use Swagger\V30\Object\Schema;
-use Swagger\V30\Object\Example;
-use Swagger\V30\Object\Callback;
-use Swagger\V30\Object\Response;
-use Swagger\V30\Object\Parameter;
-use Swagger\V30\Object\Reference;
-use Swagger\V30\Object\RequestBody;
-use Swagger\V30\Object\SecurityScheme;
+use Swagger\V30\Schema\Link;
+use Swagger\V30\Schema\Header;
+use Swagger\V30\Schema\Schema;
+use Swagger\V30\Schema\Example;
+use Swagger\V30\Schema\Callback;
+use Swagger\V30\Schema\Response;
+use Swagger\V30\Schema\Parameter;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\RequestBody;
+use Swagger\V30\Schema\SecurityScheme;
+use Swagger\V30\Schema\Components;
 
 class ComponentsHydrator implements HydratorInterface
 {
@@ -108,9 +108,9 @@ class ComponentsHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Components $object
+     * @param Components $object
      *
-     * @return Object\Components
+     * @return Components
      */
     public function hydrate(array $data, $object)
     {
@@ -174,15 +174,12 @@ class ComponentsHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Components $object
+     * @param Components $object
      *
      * @return array
      */
     public function extract($object)
     {
-        return [
-            'name' => $object->getName(),
-            'url'  => $object->getUrl()
-        ];
+        return [];
     }
 }

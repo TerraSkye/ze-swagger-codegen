@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\OAuthFlows;
+use Swagger\V30\Schema\OAuthFlows;
 
 class SecuritySchemeHydrator implements HydratorInterface
 {
@@ -26,9 +26,9 @@ class SecuritySchemeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\SecurityScheme $object
+     * @param Schema\SecurityScheme $object
      *
-     * @return Object\SecurityScheme
+     * @return Schema\SecurityScheme
      */
     public function hydrate(array $data, $object)
     {
@@ -38,17 +38,27 @@ class SecuritySchemeHydrator implements HydratorInterface
             $object->setDescription($data['description']);
         }
 
-        $object->setName($data['name']);
-        $object->setIn($data['in']);
+        if (isset($data['name'])) {
+            $object->setName($data['name']);
+        }
+
+        if (isset($data['in'])) {
+            $object->setIn($data['in']);
+        }
+
         $object->setScheme($data['scheme']);
 
         if (isset($data['bearerFormat'])) {
             $object->setBearerFormat($data['bearerFormat']);
         }
 
-        $object->setFlows($this->oAuthFlowsHydrator->hydrate($data['flows'], new OAuthFlows()));
+        if (isset($data['flows'])) {
+            $object->setFlows($this->oAuthFlowsHydrator->hydrate($data['flows'], new OAuthFlows()));
+        }
 
-        $object->setOpenIdConnectUrl($data['openIdConnectUrl']);
+        if (isset($data['openIdConnectUrl'])) {
+            $object->setOpenIdConnectUrl($data['openIdConnectUrl']);
+        }
 
         return $object;
     }
@@ -56,7 +66,7 @@ class SecuritySchemeHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\SecurityScheme $object
+     * @param Schema\SecurityScheme $object
      *
      * @return array
      */

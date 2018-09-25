@@ -2,9 +2,9 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Server;
+use Swagger\V30\Schema\Server;
 
 class LinkHydrator implements HydratorInterface
 {
@@ -26,9 +26,9 @@ class LinkHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Link $object
+     * @param Schema\Link $object
      *
-     * @return Object\Link
+     * @return Schema\Link
      */
     public function hydrate(array $data, $object)
     {
@@ -46,7 +46,7 @@ class LinkHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Link $object
+     * @param Schema\Link $object
      *
      * @return array
      */

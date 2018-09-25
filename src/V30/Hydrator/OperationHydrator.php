@@ -2,16 +2,16 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
-use Swagger\V30\Object\Server;
-use Swagger\V30\Object\Callback;
-use Swagger\V30\Object\Parameter;
-use Swagger\V30\Object\Reference;
-use Swagger\V30\Object\Responses;
-use Swagger\V30\Object\RequestBody;
-use Swagger\V30\Object\SecurityRequirement;
-use Swagger\V30\Object\ExternalDocumentation;
+use Swagger\V30\Schema\Server;
+use Swagger\V30\Schema\Callback;
+use Swagger\V30\Schema\Parameter;
+use Swagger\V30\Schema\Reference;
+use Swagger\V30\Schema\Responses;
+use Swagger\V30\Schema\RequestBody;
+use Swagger\V30\Schema\SecurityRequirement;
+use Swagger\V30\Schema\ExternalDocumentation;
 
 class OperationHydrator implements HydratorInterface
 {
@@ -88,9 +88,9 @@ class OperationHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Operation $object
+     * @param Schema\Operation $object
      *
-     * @return Object\Operation
+     * @return Schema\Operation
      */
     public function hydrate(array $data, $object)
     {
@@ -128,8 +128,10 @@ class OperationHydrator implements HydratorInterface
             $object->setDeprecated($data['deprecated']);
         }
 
-        if(isset($data['security'])) {
-            $object->setSecurity($this->securityReqHydrator->hydrate($data['security'], new SecurityRequirement()));
+        if (isset($data['security'])) {
+            foreach ($data['security'] as $securityRequirement) {
+                $object->addSecurityRequirement($this->securityReqHydrator->hydrate($securityRequirement, new SecurityRequirement()));
+            }
         }
 
         if (isset($data['servers'])) {
@@ -144,7 +146,7 @@ class OperationHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\Operation $object
+     * @param Schema\Operation $object
      *
      * @return array
      */
@@ -156,22 +158,26 @@ class OperationHydrator implements HydratorInterface
             'description'  => $object->getDescription(),
             'externalDocs' => $this->externalDocsHydrator->extract($object->getExternalDocs()),
             'operationId'  => $object->getOperationId(),
-            'requestBody' => $this->requestBodyHydrator->extract($object->getRequestBody()),
+            'requestBody' => $object->getRequestBody() instanceof Reference? $this->referenceHydrator->extract($object->getRequestBody()):($object->getRequestBody()? $this->requestBodyHydrator->extract($object->getRequestBody()) : null),
             'responses' => $object->getResponses(),
             'deprecated' => $object->getDeprecated(),
-            'security' => $this->securityReqHydrator->extract($object->getSecurity())
+            'security' => []
         ];
 
         foreach ($object->getParameters() as $parameter) {
-            $data['parameters'][] = $this->parameterHydrator->extract($parameter);
+            $data['parameters'][] = $parameter instanceof Reference? $this->referenceHydrator->extract($parameter) :$this->parameterHydrator->extract($parameter);
         }
 
         foreach ($object->getCallbacks() as $name => $callback) {
-            $data['callbacks'][$name] = $this->callbackHydrator->extract($callback);
+            $data['callbacks'][$name] = $callback instanceof Reference? $this->referenceHydrator->extract($callback) :$this->callbackHydrator->extract($callback);
         }
 
         foreach ($object->getServers() as $server) {
             $data['servers'][] = $this->serverHydrator->extract($server);
+        }
+
+        foreach ($object->getSecurity() as $securityRequirement) {
+            $data['security'][] = $this->securityReqHydrator->extract($securityRequirement);
         }
 
         return $data;

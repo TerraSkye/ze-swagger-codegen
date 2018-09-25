@@ -2,7 +2,7 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Swagger\V30\Object;
+use Swagger\V30\Schema;
 use Zend\Hydrator\HydratorInterface;
 
 class OAuthFlowHydrator implements HydratorInterface
@@ -10,9 +10,9 @@ class OAuthFlowHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\OAuthFlow $object
+     * @param Schema\OAuthFlow $object
      *
-     * @return Object\OAuthFlow
+     * @return Schema\OAuthFlow
      */
     public function hydrate(array $data, $object)
     {
@@ -33,7 +33,7 @@ class OAuthFlowHydrator implements HydratorInterface
     /**
      * @inheritDoc
      *
-     * @param Object\OAuthFlow $object
+     * @param Schema\OAuthFlow $object
      *
      * @return array
      */
