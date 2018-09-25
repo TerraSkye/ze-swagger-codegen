@@ -125,11 +125,19 @@ class Codegen extends Command
         $this->projectRoot = getcwd();
         $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.json';
 
-        $namespacePath = $this->projectRoot . DIRECTORY_SEPARATOR . $this->getNamespacePath($namespace, $input, $output);
-
         if (!is_file($swaggerFile)) {
-            throw CodegenException::missingSwaggerJson();
+            $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.yml';
+
+            if (!is_file($swaggerFile)) {
+                throw CodegenException::missingSwaggerJson();
+            }
+
+            if (!function_exists('yaml_parse')) {
+                throw CodegenException::missingYamlExtension();
+            }
         }
+
+        $namespacePath = $this->projectRoot . DIRECTORY_SEPARATOR . $this->getNamespacePath($namespace, $input, $output);
 
         $document = $this->parseFile($swaggerFile);
 
@@ -201,24 +209,38 @@ class Codegen extends Command
      */
     protected function parseFile(string $file): V30Document
     {
-        return $this->parse(file_get_contents($file));
+        $fileContents = file_get_contents($file);
+
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+        switch ($ext) {
+            case 'json':
+                $data = json_decode($fileContents, true);
+                break;
+            case 'yml':
+                $data = yaml_parse($fileContents);
+                break;
+            default:
+                throw CodegenException::unknownFileExtension($ext);
+                break;
+        }
+
+        return $this->parse($data);
     }
 
     /**
-     * @param  string $data
+     * @param  array $data
      *
      * @return V30Document
      */
-    protected function parse(string $data): V30Document
+    protected function parse(array $data): V30Document
     {
-        $rawData = json_decode($data, true);
-
-        if (!empty($rawData)) {
-            $version = $this->detectOpenAPIVersion($rawData);
+        if (!empty($data)) {
+            $version = $this->detectOpenAPIVersion($data);
 
             switch ($version) {
                 case strpos($version, '3.0') !== false:
-                    return $this->documentHydrator->hydrate($rawData, new V30Document());
+                    return $this->documentHydrator->hydrate($data, new V30Document());
                     break;
             }
         }

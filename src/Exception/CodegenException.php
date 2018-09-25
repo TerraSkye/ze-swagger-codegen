@@ -46,4 +46,14 @@ class CodegenException extends RuntimeException
             $class
         ));
     }
+
+    public static function missingYamlExtension() : self
+    {
+        return new self('A openapi.yml has been found but the Yaml extension is not loaded.');
+    }
+
+    public static function unknownFileExtension(string $ext) : self
+    {
+        return new self(sprintf('The given file extension "%s" is not supported.', $ext));
+    }
 }
