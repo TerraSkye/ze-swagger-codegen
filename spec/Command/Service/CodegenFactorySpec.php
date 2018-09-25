@@ -10,6 +10,7 @@ use Swagger\V30\Hydrator\DocumentHydrator;
 use Swagger\Command\Service\CodegenFactory;
 use PhpSpec\ObjectBehavior;
 use Swagger\Command\Codegen;
+use Swagger\Ignore;
 
 class CodegenFactorySpec extends ObjectBehavior
 {
@@ -28,7 +29,8 @@ class CodegenFactorySpec extends ObjectBehavior
         Generator\RoutesGenerator $routesGenerator,
         Generator\HydratorGenerator $hydratorGenerator,
         Generator\DependenciesGenerator $dependenciesGenerator,
-        Generator\ApiGenerator $apiGenerator
+        Generator\ApiGenerator $apiGenerator,
+        Ignore $ignoreService
     ) {
         $container->get('HydratorManager')->willReturn($hydratorPluginManager);
         $hydratorPluginManager->get(DocumentHydrator::class)->willReturn($documentHydrator);
@@ -41,6 +43,7 @@ class CodegenFactorySpec extends ObjectBehavior
         $container->get(Generator\HydratorGenerator::class)->willReturn($hydratorGenerator);
         $container->get(Generator\DependenciesGenerator::class)->willReturn($dependenciesGenerator);
         $container->get(Generator\ApiGenerator::class)->willReturn($apiGenerator);
+        $container->get(Ignore::class)->willReturn($ignoreService);
 
         $this->__invoke($container)->shouldBeAnInstanceOf(Codegen::class);
     }

@@ -11,17 +11,20 @@ use Swagger\V30\Object\Document;
 use Swagger\V30\Object\Schema;
 use Swagger\V30\Object\Reference;
 use Swagger\Generator\ModelGenerator;
-
 use Swagger\V30\Object\Components;
+use Swagger\Ignore;
 
 /**
  * @SuppressWarnings(PHPMD.CamelCaseMethodName)
  */
 class HydratorGeneratorSpec extends ObjectBehavior
 {
-    public function let(Template $templateService, ModelGenerator $modelGenerator)
-    {
-        $this->beConstructedWith($templateService, $modelGenerator);
+    public function let(
+        Template $templateService,
+        ModelGenerator $modelGenerator,
+        Ignore $ignoreService
+    ) {
+        $this->beConstructedWith($templateService, $modelGenerator, $ignoreService);
     }
 
     public function it_is_initializable()
@@ -32,7 +35,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
     public function it_can_generate_from_schema(
         Schema $schema,
         ModelGenerator $modelGenerator,
-        Template $templateService
+        Template $templateService,
+        Ignore $ignoreService
     ) {
         vfsStream::setup('namespacePath');
 
@@ -56,6 +60,9 @@ class HydratorGeneratorSpec extends ObjectBehavior
             'properties' => []
         ])->shouldBeCalled();
 
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
+
         $this->generateFromSchema($schema, 'test', vfsStream::url('namespacePath'), $namespace)->shouldBeString();
     }
 
@@ -70,7 +77,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
         Components $components,
         Schema $schema,
         Template $templateService,
-        ModelGenerator $modelGenerator
+        ModelGenerator $modelGenerator,
+        Ignore $ignoreService
     ) {
         vfsStream::setup('namespacePath');
 
@@ -102,6 +110,9 @@ class HydratorGeneratorSpec extends ObjectBehavior
             'modelNamespace' => $namespace . '\Model',
             'properties' => []
         ])->shouldBeCalled();
+
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
 
         $this->generateFromDocument($document, vfsStream::url('namespacePath'), $namespace);
     }
