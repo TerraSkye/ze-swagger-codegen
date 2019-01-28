@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'routes' => [
+        {{#routes}}
+        [
+            'name' => '{{name}}',
+            'path' => '{{path}}',
+            'middleware' => [{{#modelMiddleware}}{{.}}, {{/modelMiddleware}}{{middleware}}],
+            'allowed_methods' => ['{{method}}']
+        ],
+        {{/routes}}
+    ]
+];

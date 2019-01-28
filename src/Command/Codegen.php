@@ -111,7 +111,8 @@ class Codegen extends Command
             ->setName('codegen')
             ->setDescription('Generate code according to Swagger definition file.')
             ->addOption('namespace', 'ns', InputOption::VALUE_OPTIONAL, 'The namespace to generate the Swagger code to.', 'App')
-            ->addOption('client', null, InputOption::VALUE_NONE, 'Generate a REST client instead of the server.');
+            ->addOption('client', null, InputOption::VALUE_NONE, 'Generate a REST client instead of the server.')
+            ->addOption('routes-from-config', null, InputOption::VALUE_NONE, 'Generate routes in config instead of programmatic.');
     }
 
     /**
@@ -121,6 +122,7 @@ class Codegen extends Command
     {
         $namespace = $input->getOption('namespace');
         $generateClient = $input->getOption('client');
+        $routesFromConfig = $input->getOption('routes-from-config');
 
         $this->projectRoot = getcwd();
         $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.json';
@@ -175,7 +177,7 @@ class Codegen extends Command
 
         $configPath = $this->projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
 
-        $generated = $this->routesGenerator->generateFromDocument($document, $namespace, $configPath);
+        $generated = $this->routesGenerator->generateFromDocument($document, $namespace, $configPath, $routesFromConfig);
 
         if ($generated) {
             $output->writeln('<info>Generated routes</info>');

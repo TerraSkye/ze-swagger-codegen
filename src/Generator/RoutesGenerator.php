@@ -58,10 +58,13 @@ class RoutesGenerator extends AbstractGenerator
      * @param  Document $document
      * @param  string   $namespace
      * @param string $configPath
+     * @param bool $routesFromConfig
      */
-    public function generateFromDocument(Document $document, string $namespace, string $configPath)
+    public function generateFromDocument(Document $document, string $namespace, string $configPath, bool $routesFromConfig = false)
     {
-        $routeConfigPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'swagger.routes.php';
+        $configFile = $routesFromConfig? 'autoload' . DIRECTORY_SEPARATOR . 'swagger.routes.global.php': 'swagger.routes.php';
+
+        $routeConfigPath = rtrim($configPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $configFile;
 
         if (!$this->ignoreService->isIgnored($routeConfigPath)) {
             $routes = [];
@@ -70,7 +73,9 @@ class RoutesGenerator extends AbstractGenerator
                 $routes = $this->generateFromPathItem($path, $pathItem, $namespace, $routes);
             }
 
-            $routes = $this->templateService->render('routes', [
+            $template = $routesFromConfig? 'routes-config' : 'routes';
+
+            $routes = $this->templateService->render($template, [
                 'routes' => $routes
             ]);
 
