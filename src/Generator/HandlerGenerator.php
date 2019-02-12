@@ -60,8 +60,11 @@ class HandlerGenerator extends AbstractGenerator
         string $namespace
     ): ?string {
         /** @var PathItem $pathItem **/
-
         $handlerName = $this->getHandlerName($path);
+        
+        if ($pathItem->getXHandler() !== null) {
+            $handlerName = $this->toModelName($pathItem->getXHandler());
+        }
 
         $handlerPath = $namespacePath . DIRECTORY_SEPARATOR . 'Handler' . DIRECTORY_SEPARATOR;
 
@@ -71,7 +74,8 @@ class HandlerGenerator extends AbstractGenerator
             $handler = $this->templateService->render('handler', [
                 'className'  => $handlerName,
                 'namespace'  => $this->getNamespace($namespace),
-                'operationMethods' => array_keys($pathItem->getOperations())
+                'operationMethods' => array_keys($pathItem->getOperations()),
+                'isSingleOperation' => count($pathItem->getOperations()) === 1,
             ]);
 
             $this->writeFile($savePath, $handler);
