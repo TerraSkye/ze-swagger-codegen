@@ -2,8 +2,6 @@
 
 namespace spec\Swagger\Generator;
 
-use Swagger\Ignore;
-
 use Swagger\Generator\HandlerGenerator;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;

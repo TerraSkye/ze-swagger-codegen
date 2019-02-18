@@ -11,7 +11,6 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Swagger\V30\Schema\Document;
 use org\bovigo\vfs\vfsStream;
-use Swagger\Ignore;
 
 /**
  * @SuppressWarnings(PHPMD.CamelCaseMethodName)
