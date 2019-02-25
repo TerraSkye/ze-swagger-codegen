@@ -2,10 +2,15 @@
 
 namespace Swagger\Generator;
 
+use Swagger\Exception\CodegenException;
+
 use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\PathItem;
 use Swagger\Template;
 use Swagger\Ignore;
+
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class HandlerGenerator extends AbstractGenerator
 {
@@ -20,15 +25,25 @@ class HandlerGenerator extends AbstractGenerator
     protected $ignoreService;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
      * @param Ignore $ignoreService
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(Template $templateService, Ignore $ignoreService)
-    {
+    public function __construct(
+        Template $templateService,
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->templateService = $templateService;
         $this->ignoreService = $ignoreService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -74,7 +89,14 @@ class HandlerGenerator extends AbstractGenerator
                 'operationMethods' => array_keys($pathItem->getOperations())
             ]);
 
-            $this->writeFile($savePath, $handler);
+            if ($this->writeFile($savePath, $handler) === false) {
+                throw new CodegenException(sprintf('Failed to write "%s" to "%s"', $handlerName, $savePath));
+            }
+
+            $this->eventDispatcher->dispatch('swagger.codegen.generator.generated', new GenericEvent([
+                'generator' => 'Handler',
+                'name' => $handlerName
+            ]));
 
             return $handlerName;
         }

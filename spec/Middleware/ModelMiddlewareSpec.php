@@ -58,7 +58,7 @@ class ModelMiddlewareSpec extends ObjectBehavior
         HydratorInterface $hydrator,
         ValidatorChain $validatorChain,
         ServerRequestInterface $request,
-        RequestHandlerInterface $handler        
+        RequestHandlerInterface $handler
     ) {
         $request->getParsedBody()->willReturn([]);
         $hydrator->hydrate(Argument::type('array'), $testModel)->willReturn($testModel);
@@ -69,5 +69,6 @@ class ModelMiddlewareSpec extends ObjectBehavior
         $request->withAttribute('Model', $testModel)->willReturn($request);
 
         $this->process($request, $handler)->shouldReturnAnInstanceOf(ResponseInterface::class);
+        $this->process($request, $handler)->getStatusCode()->shouldBe(400);
     }
 }

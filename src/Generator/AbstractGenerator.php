@@ -22,7 +22,7 @@ abstract class AbstractGenerator
         $tag = preg_replace('/\\]/', '', $tag);
         $tag = preg_replace('/[^\\w\\\\]+/', '_', $tag);
 
-        return (string)$this->getCamelCaseFilter()->filter($tag);
+        return $this->getCamelCaseFilter()->filter($tag);
     }
 
     /**
@@ -49,6 +49,6 @@ abstract class AbstractGenerator
             mkdir($folder, 0755, true);
         }
 
-        file_put_contents($path, $contents);
+        return file_put_contents($path, $contents);
     }
 }

@@ -24,6 +24,7 @@ class TemplateSpec extends ObjectBehavior
     public function it_can_render_with_invalid_cache(StorageInterface $storage)
     {
         $storage->setItem('model', Argument::type('string'))->willReturn(true);
+        $storage->setItem('model', Argument::type('string'))->shouldBeCalled();
         $storage->hasItem('model')->willReturn(false);
         $storage->hasItem('model')->shouldBeCalled();
 

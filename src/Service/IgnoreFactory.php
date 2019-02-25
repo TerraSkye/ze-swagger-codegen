@@ -8,6 +8,9 @@ use Swagger\Ignore;
 
 class IgnoreFactory
 {
+    /**
+     * @return Ignore
+     */
     public function __invoke(): Ignore
     {
         return new Ignore(
@@ -15,12 +18,19 @@ class IgnoreFactory
         );
     }
 
-    protected function findIgnoreFiles()
+    /**
+     * @return array
+     */
+    protected function findIgnoreFiles(): array
     {
         return preg_grep('~\.swagger-codegen-ignore\b~i', array_values($this->readDir(getcwd())));
     }
 
-    protected function readDir($dir)
+    /**
+     * @param  string $dir
+     * @return array
+     */
+    protected function readDir(string $dir): array
     {
         $files = array();
         $dir = preg_replace('~\/+~', '/', $dir . '/');
@@ -37,5 +47,5 @@ class IgnoreFactory
             }
         }
         return $files;
-}
+    }
 }

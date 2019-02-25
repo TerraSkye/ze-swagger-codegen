@@ -34,7 +34,8 @@ class CodegenFactory
             $container->get(RoutesGenerator::class),
             $container->get(HydratorGenerator::class),
             $container->get(DependenciesGenerator::class),
-            $container->get(ApiGenerator::class)
+            $container->get(ApiGenerator::class),
+            $container->get('event_dispatcher')
         );
     }
 }

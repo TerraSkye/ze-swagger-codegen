@@ -15,7 +15,7 @@ use org\bovigo\vfs\vfsStream;
 /**
  * @SuppressWarnings(PHPMD.CamelCaseMethodName)
  */
-class DependenciesGeneratorSpec extends ObjectBehavior
+class DependenciesGeneratorStubSpec extends ObjectBehavior
 {
     public function let(
         Template $templateService,
@@ -59,6 +59,32 @@ class DependenciesGeneratorSpec extends ObjectBehavior
         $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
 
-        $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR);
+        $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR)->shouldBeBool();
+        $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR)->shouldBe(true);
+
+        $configFolder = vfsStream::url('configDir') . DIRECTORY_SEPARATOR . 'autoload';
+
+        $dependencyConfigPath = $configFolder . DIRECTORY_SEPARATOR . 'swagger.dependencies.global.php';
+
+        $this->fileExists($dependencyConfigPath)->shouldBe(true);
+        $this->folderExists($configFolder)->shouldBe(true);
+        $this->assertFolderPermissions($configFolder)->shouldBe(true);
+    }
+
+    public function it_cant_generate_from_document_because_of_ignore(
+        Document $document,
+        Ignore $ignoreService,
+        Template $templateService
+    ) {
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(true);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
+
+        $templateService->render('dependencies', [
+            'models'    => Argument::type('array'),
+            'hydrators' => Argument::type('array')
+        ])->shouldNotBeCalled();
+
+        $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR)->shouldBeBool();
+        $this->generateFromDocument($document, Argument::type('string'), vfsStream::url('configDir') . DIRECTORY_SEPARATOR)->shouldBe(false);
     }
 }

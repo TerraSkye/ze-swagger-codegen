@@ -22,6 +22,8 @@ use Swagger\V30\Schema\Document as V30Document;
 use Swagger\Template;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Codegen extends Command
 {
@@ -71,6 +73,11 @@ class Codegen extends Command
     protected $apiGenerator;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * @param DocumentHydrator $documentHydrator
      * @param Template $templateService
      * @param HandlerGenerator $handlerGenerator
@@ -79,6 +86,7 @@ class Codegen extends Command
      * @param HydratorGenerator $hydratorGenerator
      * @param DependenciesGenerator $dependenciesGenerator
      * @param ApiGenerator $apiGenerator
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         DocumentHydrator $documentHydrator,
@@ -88,7 +96,8 @@ class Codegen extends Command
         RoutesGenerator $routesGenerator,
         HydratorGenerator $hydratorGenerator,
         DependenciesGenerator $dependenciesGenerator,
-        ApiGenerator $apiGenerator
+        ApiGenerator $apiGenerator,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->documentHydrator = $documentHydrator;
         $this->templateService = $templateService;
@@ -98,6 +107,9 @@ class Codegen extends Command
         $this->hydratorGenerator = $hydratorGenerator;
         $this->dependenciesGenerator = $dependenciesGenerator;
         $this->apiGenerator = $apiGenerator;
+        $this->eventDispatcher = $eventDispatcher;
+
+        $this->projectRoot = getcwd();
 
         parent::__construct();
     }
@@ -107,12 +119,11 @@ class Codegen extends Command
      */
     protected function configure()
     {
-        $this
-            ->setName('codegen')
-            ->setDescription('Generate code according to Swagger definition file.')
-            ->addOption('namespace', 'ns', InputOption::VALUE_OPTIONAL, 'The namespace to generate the Swagger code to.', 'App')
-            ->addOption('client', null, InputOption::VALUE_NONE, 'Generate a REST client instead of the server.')
-            ->addOption('routes-from-config', null, InputOption::VALUE_NONE, 'Generate routes in config instead of programmatic.');
+        $this->setName('codegen');
+        $this->setDescription('Generate code according to Swagger definition file.');
+        $this->addOption('namespace', 'ns', InputOption::VALUE_OPTIONAL, 'The namespace to generate the Swagger code to.', 'App');
+        $this->addOption('client', null, InputOption::VALUE_NONE, 'Generate a REST client instead of the server.');
+        $this->addOption('routes-from-config', null, InputOption::VALUE_NONE, 'Generate routes in config instead of programmatic.');
     }
 
     /**
@@ -120,11 +131,15 @@ class Codegen extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
+        $dispatcher->addListener('swagger.codegen.generator.generated', function (GenericEvent $event) use ($output) {
+            $subject = $event->getSubject();
+            $output->writeln(sprintf('<info>%s generated: %s</info>', $subject['generator'], $subject['name']));
+        });
+
         $namespace = $input->getOption('namespace');
         $generateClient = $input->getOption('client');
         $routesFromConfig = $input->getOption('routes-from-config');
 
-        $this->projectRoot = getcwd();
         $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.json';
 
         if (!is_file($swaggerFile)) {
@@ -143,36 +158,38 @@ class Codegen extends Command
 
         $document = $this->parseFile($swaggerFile);
 
-        if ($generateClient) {
-            if ($document->getComponents()) {
-                foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-                    /** @var Schema|Reference $schema **/
+        // if ($generateClient) {
+        //     if ($document->getComponents()) {
+        //         foreach ($document->getComponents()->getSchemas() as $name => $schema) {
+        //             /** @var Schema|Reference $schema **/
+        //
+        //             if ($schema instanceof Schema) {
+        //                 $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+        //                 $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+        //
+        //                 $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
+        //
+        //                 $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
+        //             }
+        //             // @TODO Reference
+        //         }
+        //     }
+        //
+        //     $this->apiGenerator->generateFromDocument($document, $namespacePath, $namespace);
+        //
+        //     return 0;
+        // }
 
-                    if ($schema instanceof Schema) {
-                        $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-                        $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
+        $paths = $document->getPaths();
 
-                        $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-
-                        $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
-                    }
-                    // @TODO Reference
-                }
-            }
-
-            $this->apiGenerator->generateFromDocument($document, $namespacePath, $namespace);
-
-            return 0;
-        }
-
-        foreach ($document->getPaths() as $path => $pathItem) {
+        foreach ($paths as $path => $pathItem) {
             /** @var PathItem $pathItem **/
 
             $generatedHandler = $this->handlerGenerator->generateFromPathItem($pathItem, $path, $namespacePath, $namespace);
 
-            if (!is_null($generatedHandler)) {
-                $output->writeln(sprintf('<info>Handler generated: %s</info>', $generatedHandler));
-            }
+            // if (!is_null($generatedHandler)) {
+            //     $output->writeln(sprintf('<info>Handler generated: %s</info>', $generatedHandler));
+            // }
         }
 
         $configPath = $this->projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
@@ -250,9 +267,8 @@ class Codegen extends Command
             $version = $this->detectOpenAPIVersion($data);
 
             switch ($version) {
-                case strpos($version, '3.0') !== false:
+                case strpos($version, '3.0') === 0:
                     return $this->documentHydrator->hydrate($data, new V30Document());
-                    break;
             }
         }
     }

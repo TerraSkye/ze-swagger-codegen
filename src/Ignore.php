@@ -43,7 +43,7 @@ class Ignore
                 }
                 $paths = glob($path . DIRECTORY_SEPARATOR . $rule);
                 $filePaths = [];
-                for ($i = 0;$i < count($paths); $i++) {
+                for ($i = 0; $i < count($paths); $i++) {
                     if (is_dir($paths[$i])) {
                         $dir = new RecursiveDirectoryIterator($paths[$i]);
                         $iterator = new RecursiveIteratorIterator($dir);
@@ -70,9 +70,9 @@ class Ignore
                     $paths = glob($path . DIRECTORY_SEPARATOR . substr($rule, 1));
 
                     $filePaths = [];
-                    foreach ($paths as $path) {
-                        if (is_dir($path)) {
-                            $dir = new RecursiveDirectoryIterator($path);
+                    for ($i = 0; $i < count($paths); $i++) {
+                        if (is_dir($paths[$i])) {
+                            $dir = new RecursiveDirectoryIterator($paths[$i]);
                             $iterator = new RecursiveIteratorIterator($dir);
 
                             $files = [];
@@ -86,7 +86,7 @@ class Ignore
                             continue;
                         }
 
-                        $filePaths[] = $path;
+                        $filePaths[] = $paths[$i];
                     }
 
                     $this->ignoredFiles = array_diff($this->ignoredFiles, $filePaths);

@@ -11,6 +11,8 @@ use Swagger\V30\Hydrator\ReflectionBasedAbstractFactory;
 use Zend\ServiceManager\Proxy\LazyServiceFactory;
 use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
 use Symfony\Component\Console\Application;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // Setup/verify autoloading
 $cwd = getcwd();
@@ -56,7 +58,16 @@ $serviceManager = new ServiceManager(array_replace_recursive(
             \Swagger\Generator\HydratorGenerator::class => ZendReflectionFactory::class,
             \Swagger\Generator\DependenciesGenerator::class => ZendReflectionFactory::class,
             \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class,
-            \Swagger\Ignore::class => \Swagger\Service\IgnoreFactory::class
+            \Swagger\Ignore::class => \Swagger\Service\IgnoreFactory::class,
+            \Zend\Validator\ValidatorChain::class => \Swagger\Service\ValidatorChainFactory::class,
+            EventDispatcher::class => InvokableFactory::class
+        ],
+        'aliases' => [
+            'event_dispatcher' => EventDispatcher::class,
+            EventDispatcherInterface::class => EventDispatcher::class
+        ],
+        'shared' => [
+            \Zend\Validator\ValidatorChain::class => false
         ],
         'services' => [
             'config' => [

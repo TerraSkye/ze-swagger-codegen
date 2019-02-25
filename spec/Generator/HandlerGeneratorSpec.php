@@ -2,6 +2,8 @@
 
 namespace spec\Swagger\Generator;
 
+use Swagger\Exception\CodegenException;
+
 use Swagger\Generator\HandlerGenerator;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -52,6 +54,17 @@ class HandlerGeneratorSpec extends ObjectBehavior
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
 
         $this->generateFromPathItem($pathItem, 'test', vfsStream::url('namespacePath'), 'App')->shouldBeString();
+        $this->shouldNotThrow(CodegenException::class)->during('generateFromPathItem', [$pathItem, 'test', vfsStream::url('namespacePath'), 'App']);
+    }
+
+    public function it_cant_generate_from_path_item_because_of_ignore(
+        PathItem $pathItem,
+        Ignore $ignoreService
+    ) {
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(true);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
+
+        $this->generateFromPathItem($pathItem, 'test', vfsStream::url('namespacePath'), 'App')->shouldBe(null);
     }
 
     public function it_can_generate_from_document(

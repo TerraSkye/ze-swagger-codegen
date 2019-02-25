@@ -62,3 +62,62 @@ class TestValidator implements ValidatorInterface
         return [];
     }
 }
+
+namespace Swagger\Command;
+
+use Swagger\Command\Codegen as RealCodegen;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class CodegenCommand extends RealCodegen
+{
+    /**
+     * @param  string $projectRoot
+     * @return self
+     */
+    public function setProjectRoot(string $projectRoot): self
+    {
+        $this->projectRoot = $projectRoot;
+
+        return $this;
+    }
+
+    public function getNamespacePathPublic(string $namespace, InputInterface $input, OutputInterface $output): string
+    {
+        return $this->getNamespacePath($namespace, $input, $output);
+    }
+}
+
+namespace Swagger\Generator;
+
+use Swagger\Generator\DependenciesGenerator;
+
+class DependenciesGeneratorStub extends DependenciesGenerator
+{
+    /**
+     * @param  string $path
+     * @return bool
+     */
+    public function fileExists(string $path): bool
+    {
+        return file_exists($path);
+    }
+
+    /**
+     * @param  string $path
+     * @return bool
+     */
+    public function folderExists(string $path): bool
+    {
+        return is_dir($path);
+    }
+
+    /**
+     * @param  string $folder
+     * @return bool
+     */
+    public function assertFolderPermissions(string $folder): bool
+    {
+        return fileperms($folder) == 16877; //0755
+    }
+}

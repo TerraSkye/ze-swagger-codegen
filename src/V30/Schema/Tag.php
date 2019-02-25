@@ -31,9 +31,9 @@ class Tag
     /**
      * @param string $name
      *
-     * @return static
+     * @return self
      */
-    public function setName(string $name)
+    public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
@@ -50,9 +50,9 @@ class Tag
     /**
      * @param string $description
      *
-     * @return static
+     * @return self
      */
-    public function setDescription(string $description)
+    public function setDescription(string $description): self
     {
         $this->description = $description;
         return $this;
@@ -69,9 +69,9 @@ class Tag
     /**
      * @param ExternalDocumentation $externalDocs
      *
-     * @return static
+     * @return self
      */
-    public function setExternalDocs(ExternalDocumentation $externalDocs)
+    public function setExternalDocs(ExternalDocumentation $externalDocs): self
     {
         $this->externalDocs = $externalDocs;
         return $this;

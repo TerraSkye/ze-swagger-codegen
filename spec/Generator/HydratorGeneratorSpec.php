@@ -9,7 +9,6 @@ use org\bovigo\vfs\vfsStream;
 use Swagger\Template;
 use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\Schema;
-use Swagger\V30\Schema\Reference;
 use Swagger\Generator\ModelGenerator;
 use Swagger\Ignore;
 use Swagger\V30\Schema\Components;
@@ -64,6 +63,21 @@ class HydratorGeneratorSpec extends ObjectBehavior
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
 
         $this->generateFromSchema($schema, 'test', vfsStream::url('namespacePath'), $namespace)->shouldBeString();
+    }
+
+    public function it_cant_generate_from_schema_because_of_ignore(
+        Schema $schema,
+        Ignore $ignoreService,
+        ModelGenerator $modelGenerator
+    ) {
+        $namespace = 'App';
+
+        $modelGenerator->getNamespace($namespace)->willReturn($namespace . '\Model');
+
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(true);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
+
+        $this->generateFromSchema($schema, 'test', vfsStream::url('namespacePath'), $namespace)->shouldBe(null);
     }
 
     public function it_can_get_namespace()
