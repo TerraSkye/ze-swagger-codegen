@@ -2,3 +2,7 @@ vendor
 composer.lock
 coverage
 coverage.xml
+openapi.yml
+openapi.json
+swagger.yml
+swagger.json
