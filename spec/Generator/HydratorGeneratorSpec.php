@@ -5,6 +5,8 @@ namespace spec\Swagger\Generator;
 use Swagger\Generator\HydratorGenerator;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use org\bovigo\vfs\vfsStream;
 use Swagger\Template;
 use Swagger\V30\Schema\Document;
@@ -21,9 +23,10 @@ class HydratorGeneratorSpec extends ObjectBehavior
     public function let(
         Template $templateService,
         ModelGenerator $modelGenerator,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->beConstructedWith($templateService, $modelGenerator, $ignoreService);
+        $this->beConstructedWith($templateService, $modelGenerator, $ignoreService, $eventDispatcher);
     }
 
     public function it_is_initializable()
@@ -35,7 +38,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
         Schema $schema,
         ModelGenerator $modelGenerator,
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -58,6 +62,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
             'modelNamespace' => $namespace . '\Model',
             'properties' => []
         ])->shouldBeCalled();
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
@@ -92,7 +98,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
         Schema $schema,
         Template $templateService,
         ModelGenerator $modelGenerator,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -124,6 +131,8 @@ class HydratorGeneratorSpec extends ObjectBehavior
             'modelNamespace' => $namespace . '\Model',
             'properties' => []
         ])->shouldBeCalled();
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();

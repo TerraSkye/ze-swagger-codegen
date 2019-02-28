@@ -1,8 +1,12 @@
-vendor
+/vendor
 composer.lock
 coverage
 coverage.xml
-openapi.yml
-openapi.json
-swagger.yml
-swagger.json
+/openapi.yml
+/openapi.json
+/swagger.yml
+/swagger.json
+/config
+/data
+/src/App
+infection.log

@@ -10,9 +10,14 @@ use RecursiveDirectoryIterator;
 class Ignore
 {
     /**
-     * @var string[]
+     * @var array|string[]
      */
     protected $ignoredFiles = [];
+
+    /**
+     * @var array|string[]
+     */
+    protected $ignoreFiles;
 
     /**
      * Constructor
@@ -21,6 +26,7 @@ class Ignore
      */
     public function __construct(array $ignoreFiles)
     {
+        $this->ignoreFiles = $ignoreFiles;
         $this->parse($ignoreFiles);
     }
 
@@ -105,5 +111,13 @@ class Ignore
     public function isIgnored(string $file): bool
     {
         return in_array($file, $this->ignoredFiles);
+    }
+
+    /**
+     * @return array
+     */
+    public function getIgnoreFiles(): array
+    {
+        return $this->ignoreFiles;
     }
 }

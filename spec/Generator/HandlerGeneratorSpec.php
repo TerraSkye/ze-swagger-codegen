@@ -10,6 +10,8 @@ use Prophecy\Argument;
 use Swagger\Template;
 use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\PathItem;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use org\bovigo\vfs\vfsStream;
 use Swagger\Ignore;
 
@@ -20,9 +22,10 @@ class HandlerGeneratorSpec extends ObjectBehavior
 {
     public function let(
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->beConstructedWith($templateService, $ignoreService);
+        $this->beConstructedWith($templateService, $ignoreService, $eventDispatcher);
     }
 
     public function it_is_initializable()
@@ -33,7 +36,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
     public function it_can_generate_from_path_item(
         PathItem $pathItem,
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -47,6 +51,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
             'namespace'  => 'App\Handler',
             'operationMethods' => []
         ])->shouldBeCalled();
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $pathItem->getOperations()->willReturn([]);
 
@@ -71,7 +77,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
         Document $document,
         PathItem $pathItem,
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -89,6 +96,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
             'namespace'  => 'App\Handler',
             'operationMethods' => []
         ])->shouldBeCalled();
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $pathItem->getOperations()->willReturn([]);
 

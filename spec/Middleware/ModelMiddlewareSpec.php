@@ -20,7 +20,7 @@ class ModelMiddlewareSpec extends ObjectBehavior
         HydratorInterface $hydrator,
         ValidatorChain $validatorChain
     ) {
-        $this->beConstructedWith($testModel, $hydrator, [$validatorChain]);
+        $this->beConstructedWith($testModel, $hydrator, ['property' => $validatorChain]);
     }
 
     public function it_is_initializable()
@@ -41,9 +41,11 @@ class ModelMiddlewareSpec extends ObjectBehavior
         RequestHandlerInterface $handler,
         ResponseInterface $response
     ) {
-        $request->getParsedBody()->willReturn([]);
+        $request->getParsedBody()->willReturn([
+            'property' => 'value'
+        ]);
         $hydrator->hydrate(Argument::type('array'), $testModel)->willReturn($testModel);
-        $validatorChain->isValid(Argument::any())->willReturn(true);
+        $validatorChain->isValid('value')->willReturn(true);
 
         $handler->handle($request)->willReturn($response);
         $handler->handle($request)->shouldBeCalled();

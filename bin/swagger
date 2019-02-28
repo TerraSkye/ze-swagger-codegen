@@ -13,6 +13,7 @@ use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendRe
 use Symfony\Component\Console\Application;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Console\Input\InputDefinition;
 
 // Setup/verify autoloading
 $cwd = getcwd();
@@ -60,14 +61,18 @@ $serviceManager = new ServiceManager(array_replace_recursive(
             \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class,
             \Swagger\Ignore::class => \Swagger\Service\IgnoreFactory::class,
             \Zend\Validator\ValidatorChain::class => \Swagger\Service\ValidatorChainFactory::class,
-            EventDispatcher::class => InvokableFactory::class
+            EventDispatcher::class => InvokableFactory::class,
+            \Swagger\Parser::class => \Swagger\Service\ParserFactory::class,
+            \Swagger\Composer::class => InvokableFactory::class,
+            InputDefinition::class => InvokableFactory::class
         ],
         'aliases' => [
             'event_dispatcher' => EventDispatcher::class,
             EventDispatcherInterface::class => EventDispatcher::class
         ],
         'shared' => [
-            \Zend\Validator\ValidatorChain::class => false
+            \Zend\Validator\ValidatorChain::class => false,
+            InputDefinition::class => false
         ],
         'services' => [
             'config' => [

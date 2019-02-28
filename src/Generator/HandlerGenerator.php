@@ -8,7 +8,6 @@ use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\PathItem;
 use Swagger\Template;
 use Swagger\Ignore;
-
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

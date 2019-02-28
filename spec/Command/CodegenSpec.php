@@ -3,29 +3,32 @@
 namespace spec\Swagger\Command;
 
 use Prophecy\Argument;
-use Swagger\Command\CodegenCommand;
+use Swagger\Command\Codegen;
 use PhpSpec\ObjectBehavior;
+use Swagger\Composer;
 use Swagger\Exception\CodegenException;
 use Swagger\Ignore;
+use Swagger\Parser;
 use Swagger\Template;
 use Swagger\Generator;
-use Swagger\V30\Hydrator\DocumentHydrator;
 use Swagger\V30\Schema\Schema;
 use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\PathItem;
 use Swagger\V30\Schema\Components;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use org\bovigo\vfs\vfsStream;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class CodegenCommandSpec extends ObjectBehavior
+class CodegenSpec extends ObjectBehavior
 {
     /**
-     * @param  DocumentHydrator               $documentHydrator
+     * @param  Parser $parser
      * @param  Template                       $template
      * @param  Generator\HandlerGenerator      $handlerGenerator
      * @param  Generator\ModelGenerator        $modelGenerator
@@ -34,9 +37,12 @@ class CodegenCommandSpec extends ObjectBehavior
      * @param  Generator\DependenciesGenerator $dependenciesGenerator
      * @param  Generator\ApiGenerator          $apiGenerator
      * @param  Ignore                         $ignoreService
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param Composer $composer
+     * @param InputDefinition $inputDefinition
      */
     public function let(
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Template $template,
         Generator\HandlerGenerator $handlerGenerator,
         Generator\ModelGenerator $modelGenerator,
@@ -46,13 +52,19 @@ class CodegenCommandSpec extends ObjectBehavior
         Generator\ApiGenerator $apiGenerator,
         Ignore $ignoreService,
         HelperSet $helperSet,
-        QuestionHelper $questionHelper
+        QuestionHelper $questionHelper,
+        EventDispatcherInterface $eventDispatcher,
+        Composer $composer,
+        InputDefinition $inputDefinition
     ) {
-        $this->beConstructedWith($documentHydrator, $template, $handlerGenerator, $modelGenerator, $routesGenerator, $hydratorGenerator, $dependenciesGenerator, $apiGenerator);
+        $this->beConstructedWith($parser, $template, $handlerGenerator, $modelGenerator, $routesGenerator, $hydratorGenerator, $dependenciesGenerator, $apiGenerator, $eventDispatcher, $composer, $inputDefinition);
 
         //Constructor executes protected configure method
         $this->getName()->shouldBe('codegen');
         $this->getDescription()->shouldBe('Generate code according to Swagger definition file.');
+
+        $inputDefinition->addOption(Argument::type(InputOption::class))->shouldBeCalledTimes(4);
+        $inputDefinition->getSynopsis(Argument::type('bool'))->willReturn('');
 
         $helperSet->get('question')->willReturn($questionHelper);
 
@@ -61,37 +73,20 @@ class CodegenCommandSpec extends ObjectBehavior
 
     public function it_is_initializable()
     {
-        $this->shouldHaveType(CodegenCommand::class);
+        $this->shouldHaveType(Codegen::class);
     }
 
     public function it_cant_execute_the_command_because_of_missing_openapi_file(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $namespace = 'App';
+        $eventDispatcher->addListener('swagger.codegen.generator.generated', Argument::type(\Closure::class))->shouldBeCalled();
 
-        $input->getOption('namespace')->willReturn($namespace);
-        $input->getOption('client')->willReturn(false);
-        $input->getOption('routes-from-config')->willReturn(false);
-
-        $input->bind(Argument::type(InputDefinition::class))->willReturn();
-        $input->isInteractive()->willReturn(true);
-        $input->hasArgument('command')->willReturn(false);
-        $input->validate()->willReturn(true);
-
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
-    }
-
-    public function it_cant_execute_the_command_because_of_missing_composer_json(
-        InputInterface $input,
-        OutputInterface $output
-    ) {
-        $vfsProjectRoot = vfsStream::setup('projectRoot');
-
-        vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/only-openapi'), $vfsProjectRoot);
+        vfsStream::setup('projectRoot');
         $projectRoot = vfsStream::url('projectRoot');
 
-        $this->setProjectRoot($projectRoot);
+        $input->getOption('project-root')->willReturn($projectRoot);
 
         $namespace = 'App';
 
@@ -104,22 +99,15 @@ class CodegenCommandSpec extends ObjectBehavior
         $input->hasArgument('command')->willReturn(false);
         $input->validate()->willReturn(true);
 
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
+        $this->shouldThrow(new CodegenException('Could not find a openapi.json/openapi.yml in the project root'))->during('run', [$input, $output]);
     }
 
-    public function it_cant_execute_the_command_because_of_invalid_composer_json(
+    public function it_cant_execute_because_of_invalid_project_root(
         InputInterface $input,
-        OutputInterface $output
-    ) {
-        $vfsProjectRoot = vfsStream::setup('projectRoot');
-
-        vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/only-openapi'), $vfsProjectRoot);
-
-        $projectRoot = vfsStream::url('projectRoot');
-
-        vfsStream::newFile('composer.json')->at($vfsProjectRoot);
-
-        $this->setProjectRoot($projectRoot);
+        OutputInterface $output,
+        EventDispatcherInterface $eventDispatcher
+        ) {
+        $eventDispatcher->addListener('swagger.codegen.generator.generated', Argument::type(\Closure::class))->shouldBeCalled();
 
         $namespace = 'App';
 
@@ -132,69 +120,15 @@ class CodegenCommandSpec extends ObjectBehavior
         $input->hasArgument('command')->willReturn(false);
         $input->validate()->willReturn(true);
 
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
-    }
+        $input->getOption('project-root')->willReturn('');
 
-    public function it_cant_execute_the_command_because_of_missing_psr4_autoloader(
-        InputInterface $input,
-        OutputInterface $output
-    ) {
-        $vfsProjectRoot = vfsStream::setup('projectRoot');
-
-        vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/only-openapi'), $vfsProjectRoot);
-
-        $projectRoot = vfsStream::url('projectRoot');
-
-        vfsStream::newFile('composer.json')->withContent('{"autoload":{}}')->at($vfsProjectRoot);
-
-        $this->setProjectRoot($projectRoot);
-
-        $namespace = 'App';
-
-        $input->getOption('namespace')->willReturn($namespace);
-        $input->getOption('client')->willReturn(false);
-        $input->getOption('routes-from-config')->willReturn(false);
-
-        $input->bind(Argument::type(InputDefinition::class))->willReturn();
-        $input->isInteractive()->willReturn(true);
-        $input->hasArgument('command')->willReturn(false);
-        $input->validate()->willReturn(true);
-
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
-    }
-
-    public function it_cant_execute_the_command_because_of_invalid_psr4_autoloader(
-        InputInterface $input,
-        OutputInterface $output
-    ) {
-        $vfsProjectRoot = vfsStream::setup('projectRoot');
-
-        vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/only-openapi'), $vfsProjectRoot);
-
-        $projectRoot = vfsStream::url('projectRoot');
-
-        vfsStream::newFile('composer.json')->withContent('{"autoload":{"psr-4":"invalid"}}')->at($vfsProjectRoot);
-
-        $this->setProjectRoot($projectRoot);
-
-        $namespace = 'App';
-
-        $input->getOption('namespace')->willReturn($namespace);
-        $input->getOption('client')->willReturn(false);
-        $input->getOption('routes-from-config')->willReturn(false);
-
-        $input->bind(Argument::type(InputDefinition::class))->willReturn();
-        $input->isInteractive()->willReturn(true);
-        $input->hasArgument('command')->willReturn(false);
-        $input->validate()->willReturn(true);
-
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
+        $this->shouldThrow(new CodegenException('Invalid project root provided.'))->during('run', [$input, $output]);
     }
 
     public function it_can_execute(
         InputInterface $input,
         OutputInterface $output,
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Document $document,
         PathItem $pathItem,
         Generator\DependenciesGenerator $dependenciesGenerator,
@@ -204,14 +138,18 @@ class CodegenCommandSpec extends ObjectBehavior
         Schema $schema,
         Generator\ModelGenerator $modelGenerator,
         Generator\HydratorGenerator $hydratorGenerator,
-        HelperSet $helperSet
+        HelperSet $helperSet,
+        EventDispatcherInterface $eventDispatcher,
+        Composer $composer
     ) {
+        $eventDispatcher->addListener('swagger.codegen.generator.generated', Argument::type(\Closure::class))->shouldBeCalled();
+
         $vfsProjectRoot = vfsStream::setup('projectRoot');
 
         vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/openapi-composer'), $vfsProjectRoot);
         $projectRoot = vfsStream::url('projectRoot');
 
-        $this->setProjectRoot($projectRoot);
+        $input->getOption('project-root')->willReturn($projectRoot);
 
         $configPath = $projectRoot . '/config/';
 
@@ -226,60 +164,24 @@ class CodegenCommandSpec extends ObjectBehavior
         $input->hasArgument('command')->willReturn(false);
         $input->validate()->willReturn(true);
 
-        $this->execute($namespace, $projectRoot, $configPath, $input, $output, $documentHydrator, $document, $pathItem, $dependenciesGenerator, $handlerGenerator, $routesGenerator, $components, $schema, $modelGenerator, $hydratorGenerator);
+        $composerJson = json_decode(file_get_contents($projectRoot . '/composer.json'), true);
+
+        $composer->getComposerAutoloaders($projectRoot)->willReturn($composerJson['autoload']['psr-4']);
+        $composer->getComposerAutoloaders($projectRoot)->shouldBeCalled();
+
+        $this->execute($namespace, $projectRoot, $configPath, $input, $output, $parser, $document, $pathItem, $dependenciesGenerator, $handlerGenerator, $routesGenerator, $components, $schema, $modelGenerator, $hydratorGenerator, $composer);
 
         $helperSet->get('question')->shouldNotBeCalled();
 
         $this->run($input, $output)->shouldBe(0);
-    }
-
-    public function it_can_execute_with_autoload_from_vendor(
-        InputInterface $input,
-        OutputInterface $output,
-        DocumentHydrator $documentHydrator,
-        Document $document,
-        PathItem $pathItem,
-        Generator\DependenciesGenerator $dependenciesGenerator,
-        Generator\HandlerGenerator $handlerGenerator,
-        Generator\RoutesGenerator $routesGenerator,
-        Components $components,
-        Schema $schema,
-        Generator\ModelGenerator $modelGenerator,
-        Generator\HydratorGenerator $hydratorGenerator,
-        HelperSet $helperSet
-    ) {
-        $vfsProjectRoot = vfsStream::setup('projectRoot');
-
-        vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/openapi-composer-vendor'), $vfsProjectRoot);
-        $projectRoot = vfsStream::url('projectRoot');
-
-        $this->setProjectRoot($projectRoot);
-
-        $configPath = $projectRoot . '/config/';
-
-        $namespace = 'App';
-
-        $input->getOption('namespace')->willReturn($namespace);
-        $input->getOption('client')->willReturn(false);
-        $input->getOption('routes-from-config')->willReturn(false);
-
-        $input->bind(Argument::type(InputDefinition::class))->willReturn();
-        $input->isInteractive()->willReturn(true);
-        $input->hasArgument('command')->willReturn(false);
-        $input->validate()->willReturn(true);
-
-        $this->execute($namespace, $projectRoot, $configPath, $input, $output, $documentHydrator, $document, $pathItem, $dependenciesGenerator, $handlerGenerator, $routesGenerator, $components, $schema, $modelGenerator, $hydratorGenerator);
-
-        $helperSet->get('question')->shouldNotBeCalled();
-
-        $this->run($input, $output)->shouldBe(0);
+        $this->shouldNotThrow(CodegenException::class)->during('run', [$input, $output]);
     }
 
     public function it_can_execute_without_autoload(
         InputInterface $input,
         OutputInterface $output,
         QuestionHelper $questionHelper,
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Document $document,
         PathItem $pathItem,
         Generator\DependenciesGenerator $dependenciesGenerator,
@@ -288,14 +190,19 @@ class CodegenCommandSpec extends ObjectBehavior
         Components $components,
         Schema $schema,
         Generator\ModelGenerator $modelGenerator,
-        Generator\HydratorGenerator $hydratorGenerator
+        Generator\HydratorGenerator $hydratorGenerator,
+        Composer $composer,
+        EventDispatcherInterface $eventDispatcher,
+        HelperSet $helperSet
     ) {
+        $eventDispatcher->addListener('swagger.codegen.generator.generated', Argument::type(\Closure::class))->shouldBeCalled();
+
         $vfsProjectRoot = vfsStream::setup('projectRoot');
 
         vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/openapi-composer'), $vfsProjectRoot);
         $projectRoot = vfsStream::url('projectRoot');
 
-        $this->setProjectRoot($projectRoot);
+        $input->getOption('project-root')->willReturn($projectRoot);
 
         $configPath = $projectRoot . '/config/';
 
@@ -311,6 +218,8 @@ class CodegenCommandSpec extends ObjectBehavior
         $input->validate()->willReturn(true);
 
         $output->writeln(sprintf('<error>Unable to match %s to an autoloadable PSR-4 namespace. </error>', $namespace))->shouldBeCalled();
+
+        $helperSet->get('question')->shouldBeCalled();
 
         $questionHelper->ask($input, $output, Argument::type(ConfirmationQuestion::class))->willReturn(true);
         $questionHelper->ask($input, $output, Argument::type(ConfirmationQuestion::class))->shouldBeCalled();
@@ -319,7 +228,13 @@ class CodegenCommandSpec extends ObjectBehavior
 
         $output->writeln('<info>Updated composer.json. Please run `composer dump-autoload` to refresh the autoloader.</info>')->shouldBeCalled();
 
-        $this->execute($namespace, $projectRoot, $configPath, $input, $output, $documentHydrator, $document, $pathItem, $dependenciesGenerator, $handlerGenerator, $routesGenerator, $components, $schema, $modelGenerator, $hydratorGenerator);
+        $composer->getComposerAutoloaders($projectRoot)->willReturn([]);
+        $composer->getComposerAutoloaders($projectRoot)->shouldBeCalled();
+
+        $composer->getComposerJsonPath($projectRoot)->willReturn($projectRoot . '/composer.json');
+        $composer->getComposerJsonPath($projectRoot)->shouldBeCalled();
+
+        $this->execute($namespace, $projectRoot, $configPath, $input, $output, $parser, $document, $pathItem, $dependenciesGenerator, $handlerGenerator, $routesGenerator, $components, $schema, $modelGenerator, $hydratorGenerator, $composer);
 
         $this->run($input, $output)->shouldBe(0);
     }
@@ -328,7 +243,7 @@ class CodegenCommandSpec extends ObjectBehavior
         InputInterface $input,
         OutputInterface $output,
         QuestionHelper $questionHelper,
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Document $document,
         PathItem $pathItem,
         Generator\DependenciesGenerator $dependenciesGenerator,
@@ -337,14 +252,19 @@ class CodegenCommandSpec extends ObjectBehavior
         Components $components,
         Schema $schema,
         Generator\ModelGenerator $modelGenerator,
-        Generator\HydratorGenerator $hydratorGenerator
+        Generator\HydratorGenerator $hydratorGenerator,
+        Composer $composer,
+        EventDispatcherInterface $eventDispatcher,
+        HelperSet $helperSet
     ) {
+        $eventDispatcher->addListener('swagger.codegen.generator.generated', Argument::type(\Closure::class))->shouldBeCalled();
+
         $vfsProjectRoot = vfsStream::setup('projectRoot');
 
         vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../data/openapi-composer'), $vfsProjectRoot);
         $projectRoot = vfsStream::url('projectRoot');
 
-        $this->setProjectRoot($projectRoot);
+        $input->getOption('project-root')->willReturn($projectRoot);
 
         $configPath = $projectRoot . '/config/';
 
@@ -359,12 +279,17 @@ class CodegenCommandSpec extends ObjectBehavior
         $input->hasArgument('command')->willReturn(false);
         $input->validate()->willReturn(true);
 
+        $composer->getComposerAutoloaders($projectRoot)->willReturn([]);
+        $composer->getComposerAutoloaders($projectRoot)->shouldBeCalled();
+
         $output->writeln(sprintf('<error>Unable to match %s to an autoloadable PSR-4 namespace. </error>', $namespace))->shouldBeCalled();
+
+        $helperSet->get('question')->shouldBeCalled();
 
         $questionHelper->ask($input, $output, Argument::type(ConfirmationQuestion::class))->willReturn(false);
         $questionHelper->ask($input, $output, Argument::type(ConfirmationQuestion::class))->shouldBeCalled();
 
-        $this->shouldThrow(CodegenException::class)->during('run', [$input, $output]);
+        $this->shouldThrow(new CodegenException(sprintf('Unable to match %s to an autoloadable PSR-4 namespace', $namespace)))->during('run', [$input, $output]);
     }
 
     protected function execute(
@@ -373,7 +298,7 @@ class CodegenCommandSpec extends ObjectBehavior
         string $configPath,
         InputInterface $input,
         OutputInterface $output,
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Document $document,
         PathItem $pathItem,
         Generator\DependenciesGenerator $dependenciesGenerator,
@@ -382,42 +307,30 @@ class CodegenCommandSpec extends ObjectBehavior
         Components $components,
         Schema $schema,
         Generator\ModelGenerator $modelGenerator,
-        Generator\HydratorGenerator $hydratorGenerator
+        Generator\HydratorGenerator $hydratorGenerator,
+        Composer $composer
     ) {
-        $documentHydrator->hydrate(Argument::type('array'), Argument::type(Document::class))->willReturn($document);
-        $documentHydrator->hydrate(Argument::type('array'), Argument::type(Document::class))->shouldBeCalled();
+        $parser->parseFile(Argument::type('string'))->willReturn($document);
+        $parser->parseFile(Argument::type('string'))->shouldBeCalled();
 
-        $path = '/path';
-        $document->getPaths()->willReturn([
-            $path => $pathItem
-        ]);
-        $document->getPaths()->shouldBeCalled();
+        $namespacePath = $projectRoot . '/' . $this->getNamespacePath($namespace, $input, $output)->getWrappedObject();
 
-        $handlerGenerator->generateFromPathItem($pathItem, $path, $projectRoot . '/' . ltrim($this->getNamespacePathPublic($namespace, $input, $output)->getWrappedObject(), 'src/'), $namespace)->willReturn('TestHandler');
-        $handlerGenerator->generateFromPathItem($pathItem, $path, $projectRoot . '/' . ltrim($this->getNamespacePathPublic($namespace, $input, $output)->getWrappedObject(), 'src/'), $namespace)->shouldBeCalled();
-
-        $output->writeln('<info>Handler generated: TestHandler</info>')->shouldBeCalled();
+        $handlerGenerator->generateFromDocument($document, $namespacePath, $namespace)->willReturn('TestHandler');
+        $handlerGenerator->generateFromDocument($document, $namespacePath, $namespace)->shouldBeCalled();
 
         $routesGenerator->generateFromDocument($document, $namespace, $configPath, false)->willReturn(true);
+        $routesGenerator->generateFromDocument($document, $namespace, $configPath, false)->shouldBeCalled();
 
         $output->writeln('<info>Generated routes</info>')->shouldBeCalled();
 
-        $document->getComponents()->willReturn($components);
+        $modelGenerator->generateFromDocument($document, $namespacePath, $namespace)->willReturn('Item');
+        $modelGenerator->generateFromDocument($document, $namespacePath, $namespace)->shouldBeCalled();
 
-        $components->getSchemas()->willReturn([
-            'Item' => $schema
-        ]);
-        $components->getSchemas()->shouldBeCalled();
-
-        $modelGenerator->generateFromSchema($schema, 'Item', $projectRoot . '/' . ltrim($this->getNamespacePathPublic($namespace, $input, $output)->getWrappedObject(), 'src/'), $namespace)->willReturn('Item');
-
-        $output->writeln('<info>Model generated: Item</info>')->shouldBeCalled();
-
-        $hydratorGenerator->generateFromSchema($schema, 'Item', $projectRoot . '/' . ltrim($this->getNamespacePathPublic($namespace, $input, $output)->getWrappedObject(), 'src/'), $namespace)->willReturn('ItemHydrator');
-
-        $output->writeln('<info>Hydrator generated: ItemHydrator</info>')->shouldBeCalled();
+        $hydratorGenerator->generateFromDocument($document, $namespacePath, $namespace)->willReturn('ItemHydrator');
+        $hydratorGenerator->generateFromDocument($document, $namespacePath, $namespace)->shouldBeCalled();
 
         $dependenciesGenerator->generateFromDocument($document, $namespace, $configPath)->willReturn(true);
+        $dependenciesGenerator->generateFromDocument($document, $namespace, $configPath)->shouldBeCalled();
 
         $output->writeln('<info>Generated dependencies config</info>')->shouldBeCalled();
     }

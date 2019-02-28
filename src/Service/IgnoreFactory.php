@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Swagger\Service;
 
+use FilesystemIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Swagger\Ignore;
 
 class IgnoreFactory
@@ -27,25 +30,20 @@ class IgnoreFactory
     }
 
     /**
-     * @param  string $dir
+     * @param  string $dirPath
      * @return array
      */
-    protected function readDir(string $dir): array
+    protected function readDir(string $dirPath): array
     {
-        $files = array();
-        $dir = preg_replace('~\/+~', '/', $dir . '/');
-        $all  = scandir($dir);
-        foreach ($all as $path) {
-            if ($path !== '.' && $path !== '..') {
-                $path = $dir . '/' . $path;
-                $path = preg_replace('~\/+~', '/', $path);
-                $path = realpath($path);
-                if (is_dir($path)) {
-                    $files = array_merge($files, $this->readDir($path));
-                }
-                $files[] = preg_replace('~/+~i', '/', $path);
-            }
+        $dirPath = preg_replace('~\/+~', '/', $dirPath . '/');
+        $directory = new RecursiveDirectoryIterator($dirPath, FilesystemIterator::SKIP_DOTS);
+        $iterator = new RecursiveIteratorIterator($directory);
+
+        $files = [];
+        foreach ($iterator as $path) {
+            $files[] = preg_replace('~/+~i', '/', $path->getPathname());
         }
+
         return $files;
     }
 }

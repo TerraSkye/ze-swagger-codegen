@@ -7,6 +7,8 @@ use Swagger\V30\Schema\Schema;
 use Swagger\V30\Schema\Reference;
 use Swagger\Template;
 use Swagger\Ignore;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class HydratorGenerator extends AbstractGenerator
 {
@@ -26,6 +28,11 @@ class HydratorGenerator extends AbstractGenerator
     protected $ignoreService;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
@@ -35,11 +42,13 @@ class HydratorGenerator extends AbstractGenerator
     public function __construct(
         Template $templateService,
         ModelGenerator $modelGenerator,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->templateService = $templateService;
         $this->modelGenerator = $modelGenerator;
         $this->ignoreService = $ignoreService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -93,6 +102,11 @@ class HydratorGenerator extends AbstractGenerator
             ]);
 
             $this->writeFile($path, $hydrator);
+
+            $this->eventDispatcher->dispatch('swagger.codegen.generator.generated', new GenericEvent([
+                'generator' => 'Hydrator',
+                'name' => $modelName . 'Hydrator'
+            ]));
 
             return $modelName . 'Hydrator';
         }

@@ -32,7 +32,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Swagger\\": "src/"
+            "Swagger\\": "src/",
+            "Petstore\\": "src/Petstore/src/"
         }
     },
     "scripts": {
@@ -45,7 +46,9 @@
         "cs-fix": "phpcbf",
         "serve": "php -S 0.0.0.0:8080 -t public/"
     },
-    "bin": ["bin/swagger"],
+    "bin": [
+        "bin/swagger"
+    ],
     "suggests": {
         "ext-yaml": "To support parsing of yml files"
     }

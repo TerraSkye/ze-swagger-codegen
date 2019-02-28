@@ -6,6 +6,8 @@ namespace Swagger;
 
 use Closure;
 use LightnCandy\LightnCandy;
+use Swagger\Exception\CodegenException;
+
 use Zend\Cache\Storage\StorageInterface;
 
 class Template
@@ -45,10 +47,10 @@ class Template
      */
     public function render(string $template, array $variables = []): string
     {
-        $tplPath = $this->templateFolder . $template . '.hbs';
+        $tplPath = rtrim($this->templateFolder, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $template . '.hbs';
 
         if (!is_file($tplPath)) {
-            throw new \Exception('Template not found');
+            throw new CodegenException('Template not found');
         }
 
         if (!$this->cache->hasItem($template) || filemtime($tplPath) > $this->cache->getMetadata($template)['mtime']) {
@@ -64,5 +66,16 @@ class Template
         }
 
         return $this->usedTemplates[$template]($variables);
+    }
+
+    /**
+     * @param  string $templateFolder
+     * @return self
+     */
+    public function setTemplateFolder(string $templateFolder): self
+    {
+        $this->templateFolder = $templateFolder;
+
+        return $this;
     }
 }

@@ -3,7 +3,6 @@
 namespace spec\Swagger\Generator;
 
 use Prophecy\Argument;
-
 use Swagger\Generator\ModelGenerator;
 use PhpSpec\ObjectBehavior;
 use Swagger\Ignore;
@@ -11,6 +10,8 @@ use Swagger\Template;
 use Swagger\V30\Schema\Reference;
 use Swagger\V30\Schema\Components;
 use Swagger\V30\Schema\Schema;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use org\bovigo\vfs\vfsStream;
 use Swagger\V30\Schema\Document;
 
@@ -24,12 +25,14 @@ class ModelGeneratorSpec extends ObjectBehavior
     /**
      * @param  Template         $templateService
      * @param  Ignore           $ignoreService
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function let(
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->beConstructedWith($templateService, $ignoreService);
+        $this->beConstructedWith($templateService, $ignoreService, $eventDispatcher);
     }
 
     public function it_is_initializable()
@@ -54,7 +57,8 @@ class ModelGeneratorSpec extends ObjectBehavior
         Template $templateService,
         Components $components,
         Schema $schema,
-        Schema $property
+        Schema $property,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $modelName = 'Test';
 
@@ -86,6 +90,8 @@ class ModelGeneratorSpec extends ObjectBehavior
             'properties' => [["name" => "name", "typeHint" => "string", "getter" => "getName", "setter" => "setName", "validators" => ["Zend\Validator\NotEmpty"]]],
             'hydrator' => $this->namespace . '\Hydrator\TestHydrator'
         ])->willReturn(Argument::type('string'));
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $this->generateFromDocument($document, vfsStream::url('namespacePath'), $this->namespace);
         $this->generateFromDocument($document, vfsStream::url('namespacePath'), $this->namespace);

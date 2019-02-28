@@ -16,5 +16,7 @@ class IgnoreFactorySpec extends ObjectBehavior
     public function it_can_create_the_service()
     {
         $this->__invoke()->shouldBeAnInstanceOf(Ignore::class);
+
+        $this->__invoke()->getIgnoreFiles()->shouldHaveCount(2);
     }
 }

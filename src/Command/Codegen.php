@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Swagger\Command;
 
+use Swagger\Composer;
 use Swagger\Exception\CodegenException;
 use Swagger\Generator\HandlerGenerator;
 use Swagger\Generator\ModelGenerator;
@@ -11,14 +12,11 @@ use Swagger\Generator\RoutesGenerator;
 use Swagger\Generator\HydratorGenerator;
 use Swagger\Generator\DependenciesGenerator;
 use Swagger\Generator\ApiGenerator;
-use Swagger\V30\Schema\Reference;
-use Swagger\V30\Schema\Schema;
-use Swagger\V30\Schema\PathItem;
+use Swagger\Parser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Output\OutputInterface;
-use Swagger\V30\Hydrator\DocumentHydrator;
-use Swagger\V30\Schema\Document as V30Document;
 use Swagger\Template;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -28,19 +26,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class Codegen extends Command
 {
     /**
-     * @var DocumentHydrator
-     */
-    protected $documentHydrator;
-
-    /**
      * @var Template
      */
     protected $templateService;
-
-    /**
-     * @var string
-     */
-    protected $projectRoot;
 
     /**
      * @var HandlerGenerator
@@ -78,7 +66,17 @@ class Codegen extends Command
     protected $eventDispatcher;
 
     /**
-     * @param DocumentHydrator $documentHydrator
+     * @var Parser
+     */
+    protected $parser;
+
+    /**
+     * @var Composer
+     */
+    protected $composer;
+
+    /**
+     * @param Parser $parser
      * @param Template $templateService
      * @param HandlerGenerator $handlerGenerator
      * @param ModelGenerator $modelGenerator
@@ -87,9 +85,11 @@ class Codegen extends Command
      * @param DependenciesGenerator $dependenciesGenerator
      * @param ApiGenerator $apiGenerator
      * @param EventDispatcherInterface $eventDispatcher
+     * @param Composer $composer
+     * @param InputDefinition $definition
      */
     public function __construct(
-        DocumentHydrator $documentHydrator,
+        Parser $parser,
         Template $templateService,
         HandlerGenerator $handlerGenerator,
         ModelGenerator $modelGenerator,
@@ -97,9 +97,11 @@ class Codegen extends Command
         HydratorGenerator $hydratorGenerator,
         DependenciesGenerator $dependenciesGenerator,
         ApiGenerator $apiGenerator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        Composer $composer,
+        InputDefinition $definition
     ) {
-        $this->documentHydrator = $documentHydrator;
+        $this->parser = $parser;
         $this->templateService = $templateService;
         $this->handlerGenerator = $handlerGenerator;
         $this->modelGenerator = $modelGenerator;
@@ -108,10 +110,11 @@ class Codegen extends Command
         $this->dependenciesGenerator = $dependenciesGenerator;
         $this->apiGenerator = $apiGenerator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->composer = $composer;
 
-        $this->projectRoot = getcwd();
+        $this->setDefinition($definition);
 
-        parent::__construct();
+        $this->configure();
     }
 
     /**
@@ -124,6 +127,7 @@ class Codegen extends Command
         $this->addOption('namespace', 'ns', InputOption::VALUE_OPTIONAL, 'The namespace to generate the Swagger code to.', 'App');
         $this->addOption('client', null, InputOption::VALUE_NONE, 'Generate a REST client instead of the server.');
         $this->addOption('routes-from-config', null, InputOption::VALUE_NONE, 'Generate routes in config instead of programmatic.');
+        $this->addOption('project-root', null, InputOption::VALUE_OPTIONAL, 'The project root. Defaults to current working directory', getcwd());
     }
 
     /**
@@ -131,7 +135,7 @@ class Codegen extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $dispatcher->addListener('swagger.codegen.generator.generated', function (GenericEvent $event) use ($output) {
+        $this->eventDispatcher->addListener('swagger.codegen.generator.generated', function (GenericEvent $event) use ($output) {
             $subject = $event->getSubject();
             $output->writeln(sprintf('<info>%s generated: %s</info>', $subject['generator'], $subject['name']));
         });
@@ -139,11 +143,16 @@ class Codegen extends Command
         $namespace = $input->getOption('namespace');
         $generateClient = $input->getOption('client');
         $routesFromConfig = $input->getOption('routes-from-config');
+        $projectRoot = realpath($input->getOption('project-root'));
 
-        $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.json';
+        if (!$projectRoot) {
+            throw new CodegenException('Invalid project root provided.');
+        }
+
+        $swaggerFile = $projectRoot . DIRECTORY_SEPARATOR . 'openapi.json';
 
         if (!is_file($swaggerFile)) {
-            $swaggerFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'openapi.yml';
+            $swaggerFile = $projectRoot . DIRECTORY_SEPARATOR . 'openapi.yml';
 
             if (!is_file($swaggerFile)) {
                 throw CodegenException::missingSwaggerJson();
@@ -154,45 +163,13 @@ class Codegen extends Command
             }
         }
 
-        $namespacePath = $this->projectRoot . DIRECTORY_SEPARATOR . $this->getNamespacePath($namespace, $input, $output);
+        $namespacePath = $projectRoot . DIRECTORY_SEPARATOR . $this->getNamespacePath($namespace, $input, $output);
 
-        $document = $this->parseFile($swaggerFile);
+        $document = $this->parser->parseFile($swaggerFile);
 
-        // if ($generateClient) {
-        //     if ($document->getComponents()) {
-        //         foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-        //             /** @var Schema|Reference $schema **/
-        //
-        //             if ($schema instanceof Schema) {
-        //                 $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-        //                 $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
-        //
-        //                 $generateHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-        //
-        //                 $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generateHydrator));
-        //             }
-        //             // @TODO Reference
-        //         }
-        //     }
-        //
-        //     $this->apiGenerator->generateFromDocument($document, $namespacePath, $namespace);
-        //
-        //     return 0;
-        // }
+        $this->handlerGenerator->generateFromDocument($document, $namespacePath, $namespace);
 
-        $paths = $document->getPaths();
-
-        foreach ($paths as $path => $pathItem) {
-            /** @var PathItem $pathItem **/
-
-            $generatedHandler = $this->handlerGenerator->generateFromPathItem($pathItem, $path, $namespacePath, $namespace);
-
-            // if (!is_null($generatedHandler)) {
-            //     $output->writeln(sprintf('<info>Handler generated: %s</info>', $generatedHandler));
-            // }
-        }
-
-        $configPath = $this->projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
+        $configPath = $projectRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
 
         $generated = $this->routesGenerator->generateFromDocument($document, $namespace, $configPath, $routesFromConfig);
 
@@ -200,26 +177,9 @@ class Codegen extends Command
             $output->writeln('<info>Generated routes</info>');
         }
 
-        if ($document->getComponents()) {
-            foreach ($document->getComponents()->getSchemas() as $name => $schema) {
-                /** @var Schema|Reference $schema **/
+        $this->modelGenerator->generateFromDocument($document, $namespacePath, $namespace);
 
-                if ($schema instanceof Schema) {
-                    $generatedModel = $this->modelGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-
-                    if (!is_null($generatedModel)) {
-                        $output->writeln(sprintf('<info>Model generated: %s</info>', $generatedModel));
-                    }
-
-                    $generatedHydrator = $this->hydratorGenerator->generateFromSchema($schema, $name, $namespacePath, $namespace);
-
-                    if (!is_null($generatedHydrator)) {
-                        $output->writeln(sprintf('<info>Hydrator generated: %s</info>', $generatedHydrator));
-                    }
-                }
-                //@TODO Reference
-            }
-        }
+        $this->hydratorGenerator->generateFromDocument($document, $namespacePath, $namespace);
 
         $generated = $this->dependenciesGenerator->generateFromDocument($document, $namespace, $configPath);
 
@@ -231,69 +191,6 @@ class Codegen extends Command
     }
 
     /**
-     * @param  string $file
-     *
-     * @return V30Document
-     */
-    protected function parseFile(string $file): V30Document
-    {
-        $fileContents = file_get_contents($file);
-
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-
-        switch ($ext) {
-            case 'json':
-                $data = json_decode($fileContents, true);
-                break;
-            case 'yml':
-                $data = yaml_parse($fileContents);
-                break;
-            default:
-                throw CodegenException::unknownFileExtension($ext);
-                break;
-        }
-
-        return $this->parse($data);
-    }
-
-    /**
-     * @param  array $data
-     *
-     * @return V30Document
-     */
-    protected function parse(array $data): V30Document
-    {
-        if (!empty($data)) {
-            $version = $this->detectOpenAPIVersion($data);
-
-            switch ($version) {
-                case strpos($version, '3.0') === 0:
-                    return $this->documentHydrator->hydrate($data, new V30Document());
-            }
-        }
-    }
-
-    /**
-     * @param  array  $rawData
-     *
-     * @return string
-     *
-     * @throws CodegenException
-     */
-    protected function detectOpenAPIVersion(array $rawData): string
-    {
-        if (array_key_exists('swagger', $rawData)) {
-            return $rawData['swagger'];
-        }
-
-        if (array_key_exists('openapi', $rawData)) {
-            return $rawData['openapi'];
-        }
-
-        throw CodegenException::versionDetectFailure();
-    }
-
-    /**
      * @param  string $namespace
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -301,13 +198,15 @@ class Codegen extends Command
      *
      * @throws CodegenException
      */
-    protected function getNamespacePath(string $namespace, InputInterface $input, OutputInterface $output): string
+    public function getNamespacePath(string $namespace, InputInterface $input, OutputInterface $output): string
     {
-        $autoloaders = $this->getComposerAutoloaders();
+        $projectRoot = realpath($input->getOption('project-root'));
+
+        $autoloaders = $this->composer->getComposerAutoloaders($projectRoot);
 
         foreach ($autoloaders as $registeredNamespace => $path) {
             if (0 === strpos($registeredNamespace, $namespace)) {
-                $path = ltrim($path, $this->projectRoot);
+                $path = ltrim($path,  $projectRoot);
 
                 $path = trim(
                     str_replace(
@@ -330,12 +229,12 @@ class Codegen extends Command
         if ($helper->ask($input, $output, $question)) {
             $namespacePath = 'src' . DIRECTORY_SEPARATOR . $namespace . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
 
-            if (!is_dir($this->projectRoot . DIRECTORY_SEPARATOR . $namespacePath)) {
-                mkdir($this->projectRoot . DIRECTORY_SEPARATOR . $namespacePath, 0755, true);
+            if (!is_dir($projectRoot . DIRECTORY_SEPARATOR . $namespacePath)) {
+                mkdir($projectRoot . DIRECTORY_SEPARATOR . $namespacePath, 0755, true);
                 $output->writeln('<info>Created folder for namespace: ' . $namespace . '</info>');
             }
 
-            $composerPath = $this->getComposerJsonPath();
+            $composerPath = $this->composer->getComposerJsonPath($projectRoot);
 
             $composer = json_decode(file_get_contents($composerPath), true);
 
@@ -356,54 +255,6 @@ class Codegen extends Command
         }
 
         throw CodegenException::autoloaderNotFound($namespace);
-    }
-
-    /**
-     * @return array Associative array of namespace/path pairs
-     * @throws CodegenException
-     */
-    private function getComposerAutoloaders() : array
-    {
-        //Check PSR-4 autoloading from Composer autoload
-        $autoloadFile = $this->projectRoot . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . '/autoload_psr4.php';
-
-        if (is_file($autoloadFile)) {
-            $mapping = array_map(function ($value) {
-                return $value[0];
-            }, require $autoloadFile);
-
-            return $mapping;
-        }
-
-        //Fallback to project composer.json when autoloadfile is not present (yet)
-        $composerPath = $this->getComposerJsonPath();
-        if (!file_exists($composerPath)) {
-            throw CodegenException::missingComposerJson();
-        }
-
-        $composer = json_decode(file_get_contents($composerPath), true);
-
-        if (json_last_error() !== \JSON_ERROR_NONE) {
-            throw CodegenException::invalidComposerJson(json_last_error_msg());
-        }
-
-        if (! isset($composer['autoload']['psr-4'])) {
-            throw CodegenException::missingComposerAutoloaders();
-        }
-
-        if (! is_array($composer['autoload']['psr-4'])) {
-            throw CodegenException::missingComposerAutoloaders();
-        }
-
-        return $composer['autoload']['psr-4'];
-    }
-
-    /**
-     * @return string
-     */
-    protected function getComposerJsonPath(): string
-    {
-        return sprintf('%s/composer.json', $this->projectRoot);
     }
 
     /**
