@@ -31,11 +31,9 @@ class ModelMiddlewareFactory
             throw new \Exception('No Hydrator configured for Model: ' . $requestedName . '. Please add the Hydrator annotation to the Model.');
         }
 
-        $validatorManager = $container->get('ValidatorManager');
         $validatorChains = [];
         foreach ($reflClass->getProperties() as $property) {
-            $validatorChain = new ValidatorChain();
-            $validatorChain->setPluginManager($validatorManager);
+            $validatorChain = $container->get(ValidatorChain::class);
 
             $validators = $annotationReader->getPropertyAnnotation($property, Validators::class);
 

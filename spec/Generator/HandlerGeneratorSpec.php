@@ -2,7 +2,7 @@
 
 namespace spec\Swagger\Generator;
 
-use Swagger\Ignore;
+use Swagger\Exception\CodegenException;
 
 use Swagger\Generator\HandlerGenerator;
 use PhpSpec\ObjectBehavior;
@@ -10,6 +10,8 @@ use Prophecy\Argument;
 use Swagger\Template;
 use Swagger\V30\Schema\Document;
 use Swagger\V30\Schema\PathItem;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use org\bovigo\vfs\vfsStream;
 use Swagger\Ignore;
 
@@ -20,9 +22,10 @@ class HandlerGeneratorSpec extends ObjectBehavior
 {
     public function let(
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->beConstructedWith($templateService, $ignoreService);
+        $this->beConstructedWith($templateService, $ignoreService, $eventDispatcher);
     }
 
     public function it_is_initializable()
@@ -33,7 +36,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
     public function it_can_generate_from_path_item(
         PathItem $pathItem,
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -48,19 +52,33 @@ class HandlerGeneratorSpec extends ObjectBehavior
             'operationMethods' => []
         ])->shouldBeCalled();
 
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
+
         $pathItem->getOperations()->willReturn([]);
 
         $ignoreService->isIgnored(Argument::type('string'))->willReturn(false);
         $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
 
         $this->generateFromPathItem($pathItem, 'test', vfsStream::url('namespacePath'), 'App')->shouldBeString();
+        $this->shouldNotThrow(CodegenException::class)->during('generateFromPathItem', [$pathItem, 'test', vfsStream::url('namespacePath'), 'App']);
+    }
+
+    public function it_cant_generate_from_path_item_because_of_ignore(
+        PathItem $pathItem,
+        Ignore $ignoreService
+    ) {
+        $ignoreService->isIgnored(Argument::type('string'))->willReturn(true);
+        $ignoreService->isIgnored(Argument::type('string'))->shouldBeCalled();
+
+        $this->generateFromPathItem($pathItem, 'test', vfsStream::url('namespacePath'), 'App')->shouldBe(null);
     }
 
     public function it_can_generate_from_document(
         Document $document,
         PathItem $pathItem,
         Template $templateService,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         vfsStream::setup('namespacePath');
 
@@ -78,6 +96,8 @@ class HandlerGeneratorSpec extends ObjectBehavior
             'namespace'  => 'App\Handler',
             'operationMethods' => []
         ])->shouldBeCalled();
+
+        $eventDispatcher->dispatch('swagger.codegen.generator.generated', Argument::type(GenericEvent::class))->shouldBeCalled();
 
         $pathItem->getOperations()->willReturn([]);
 

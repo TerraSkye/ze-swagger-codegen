@@ -2,11 +2,14 @@
 
 namespace spec\Swagger\Command\Service;
 
+use Swagger\Parser;
+use Swagger\Composer;
 use Swagger\Template;
 use Psr\Container\ContainerInterface;
-use Zend\Hydrator\HydratorPluginManager;
+use Symfony\Component\Console\Input\InputDefinition;
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Swagger\Generator;
-use Swagger\V30\Hydrator\DocumentHydrator;
 use Swagger\Command\Service\CodegenFactory;
 use PhpSpec\ObjectBehavior;
 use Swagger\Command\Codegen;
@@ -21,20 +24,19 @@ class CodegenFactorySpec extends ObjectBehavior
 
     public function it_is_callable(
         ContainerInterface $container,
-        HydratorPluginManager $hydratorPluginManager,
         Template $template,
-        DocumentHydrator $documentHydrator,
         Generator\HandlerGenerator $handlerGenerator,
         Generator\ModelGenerator $modelGenerator,
         Generator\RoutesGenerator $routesGenerator,
         Generator\HydratorGenerator $hydratorGenerator,
         Generator\DependenciesGenerator $dependenciesGenerator,
         Generator\ApiGenerator $apiGenerator,
-        Ignore $ignoreService
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher,
+        Parser $parser,
+        Composer $composer,
+        InputDefinition $definition
     ) {
-        $container->get('HydratorManager')->willReturn($hydratorPluginManager);
-        $hydratorPluginManager->get(DocumentHydrator::class)->willReturn($documentHydrator);
-
         $container->get(Template::class)->willReturn($template);
 
         $container->get(Generator\HandlerGenerator::class)->willReturn($handlerGenerator);
@@ -44,6 +46,10 @@ class CodegenFactorySpec extends ObjectBehavior
         $container->get(Generator\DependenciesGenerator::class)->willReturn($dependenciesGenerator);
         $container->get(Generator\ApiGenerator::class)->willReturn($apiGenerator);
         $container->get(Ignore::class)->willReturn($ignoreService);
+        $container->get('event_dispatcher')->willReturn($eventDispatcher);
+        $container->get(Parser::class)->willReturn($parser);
+        $container->get(Composer::class)->willReturn($composer);
+        $container->get(InputDefinition::class)->willReturn($definition);
 
         $this->__invoke($container)->shouldBeAnInstanceOf(Codegen::class);
     }

@@ -12,6 +12,7 @@ use PhpSpec\ObjectBehavior;
 use Doctrine\Common\Annotations\Reader;
 use Swagger\Annotation;
 use Prophecy\Argument;
+use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorPluginManager;
 use App\Validator\TestValidator;
 
@@ -27,14 +28,14 @@ class ModelMiddlewareFactorySpec extends ObjectBehavior
         HydratorPluginManager $hydratorPluginManager,
         Reader $annotationReader,
         Annotation\Hydrator $hydratorAnnotation,
-        ValidatorPluginManager $validatorPluginManager,
+        ValidatorChain $validatorChain,
         Annotation\Validators $validatorsAnnotation,
         Annotation\Validator $validatorAnnotation,
         TestValidator $testValidator,
         TestHydrator $testHydrator
     ) {
         $container->get('HydratorManager')->willReturn($hydratorPluginManager);
-        $container->get('ValidatorManager')->willReturn($validatorPluginManager);
+        $container->get(ValidatorChain::class)->willReturn($validatorChain);
         $container->get(\Swagger\AnnotationReader::class)->willReturn($annotationReader);
 
         $annotationReader->getClassAnnotation(Argument::type(\ReflectionClass::class), Annotation\Hydrator::class)->willReturn($hydratorAnnotation);
@@ -42,10 +43,14 @@ class ModelMiddlewareFactorySpec extends ObjectBehavior
         $hydratorPluginManager->get(TestHydrator::class)->willReturn($testHydrator);
 
         $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validators::class)->willReturn(null);
+        $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validators::class)->shouldBeCalled();
 
         $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validator::class)->willReturn($validatorAnnotation);
+        $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validator::class)->shouldBeCalled();
+
         $validatorAnnotation->name = TestValidator::class;
-        $validatorPluginManager->get(TestValidator::class, [])->willReturn($testValidator);
+
+        $validatorChain->addByName(TestValidator::class)->shouldBeCalled();
 
         $this->__invoke($container, \App\Model\Test::class)->shouldBeAnInstanceOf(ModelMiddleware::class);
     }
@@ -60,6 +65,8 @@ class ModelMiddlewareFactorySpec extends ObjectBehavior
 
         $annotationReader->getClassAnnotation(Argument::type(\ReflectionClass::class), Annotation\Hydrator::class)->willReturn(null);
 
+        $container->get(ValidatorChain::class)->shouldNotBeCalled();
+
         $this->shouldThrow('\Exception')->during('__invoke', [$container, \App\Model\Test::class]);
     }
 
@@ -68,14 +75,14 @@ class ModelMiddlewareFactorySpec extends ObjectBehavior
         HydratorPluginManager $hydratorPluginManager,
         Reader $annotationReader,
         Annotation\Hydrator $hydratorAnnotation,
-        ValidatorPluginManager $validatorPluginManager,
+        ValidatorChain $validatorChain,
         Annotation\Validators $validatorsAnnotation,
         Annotation\Validator $validatorAnnotation,
         TestValidator $testValidator,
         TestHydrator $testHydrator
     ) {
         $container->get('HydratorManager')->willReturn($hydratorPluginManager);
-        $container->get('ValidatorManager')->willReturn($validatorPluginManager);
+        $container->get(ValidatorChain::class)->willReturn($validatorChain);
         $container->get(\Swagger\AnnotationReader::class)->willReturn($annotationReader);
 
         $annotationReader->getClassAnnotation(Argument::type(\ReflectionClass::class), Annotation\Hydrator::class)->willReturn($hydratorAnnotation);
@@ -88,9 +95,9 @@ class ModelMiddlewareFactorySpec extends ObjectBehavior
             $validatorAnnotation
         ];
 
-        $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validator::class)->willReturn(null);
+        $validatorChain->addByName(TestValidator::class)->shouldBeCalled();
 
-        $validatorPluginManager->get(TestValidator::class, [])->willReturn($testValidator);
+        $annotationReader->getPropertyAnnotation(Argument::type(\ReflectionProperty::class), Annotation\Validator::class)->willReturn(null);
 
         $this->__invoke($container, \App\Model\Test::class)->shouldBeAnInstanceOf(ModelMiddleware::class);
     }

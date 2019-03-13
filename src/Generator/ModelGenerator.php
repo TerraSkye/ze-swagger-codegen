@@ -7,6 +7,8 @@ use Swagger\V30\Schema\Schema;
 use Swagger\V30\Schema\Reference;
 use Swagger\Template;
 use Swagger\Ignore;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModelGenerator extends AbstractGenerator
 {
@@ -21,15 +23,25 @@ class ModelGenerator extends AbstractGenerator
     protected $ignoreService;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * Constructor
      * ---
      * @param Template $templateService
      * @param Ignore $ignoreService
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(Template $templateService, Ignore $ignoreService)
-    {
+    public function __construct(
+        Template $templateService,
+        Ignore $ignoreService,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->templateService = $templateService;
         $this->ignoreService = $ignoreService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -81,6 +93,11 @@ class ModelGenerator extends AbstractGenerator
             ]);
 
             $this->writeFile($path, $model);
+
+            $this->eventDispatcher->dispatch('swagger.codegen.generator.generated', new GenericEvent([
+                'generator' => 'Model',
+                'name' => $modelName
+            ]));
 
             return $modelName;
         }
