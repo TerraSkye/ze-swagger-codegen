@@ -79,9 +79,13 @@ class Server
 
     /**
      * @param ServerVariable $variable
+     *
+     * @return self
      */
-    public function addVariable(ServerVariable $variable)
+    public function addVariable(ServerVariable $variable): self
     {
         array_push($this->variables, $variable);
+
+        return $this;
     }
 }

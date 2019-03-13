@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Swagger\Middleware;
 
 use RuntimeException;
-
 use Zend\Hydrator\HydratorInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
