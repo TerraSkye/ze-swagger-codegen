@@ -39,14 +39,14 @@ class ModelMiddlewareFactory
 
             if ($validators instanceof Validators) {
                 foreach ($validators->validators as $validator) {
-                    $validatorChain->addByName($validator->name);
+                    $validatorChain->addByName($validator->name, $validator->config);
                 }
             }
 
             $validator = $annotationReader->getPropertyAnnotation($property, Validator::class);
 
             if ($validator instanceof Validator) {
-                $validatorChain->addByName($validator->name);
+                $validatorChain->addByName($validator->name, $validator->config);
             }
 
             $validatorChains[$property->name] = $validatorChain;
