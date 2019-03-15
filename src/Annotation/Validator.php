@@ -17,5 +17,5 @@ class Validator
     /**
      * @var array
      */
-    public $config = [];
+    public $options = [];
 }
