@@ -103,7 +103,7 @@ class RoutesGenerator extends AbstractGenerator
         /** @var PathItem $pathItem **/
 
         foreach ($pathItem->getOperations() as $httpMethod => $operation) {
-            $routes = $this->generateFromOperation($path, $operation, $httpMethod, $namespace, $routes);
+            $routes = $this->generateFromOperation($path, $pathItem, $operation, $httpMethod, $namespace, $routes);
         }
 
         return $routes;
@@ -111,6 +111,7 @@ class RoutesGenerator extends AbstractGenerator
 
     public function generateFromOperation(
         string $path,
+        PathItem $pathItem,
         Operation $operation,
         string $httpMethod,
         string $namespace,
@@ -141,7 +142,7 @@ class RoutesGenerator extends AbstractGenerator
             }
         }**/
 
-        $handlerName = $this->handlerGenerator->getHandlerName($path);
+        $handlerName = $this->handlerGenerator->getHandlerName($path, $pathItem);
 
         $routes[] = [
             'middleware' => $handlerNamespace . '\\' . $handlerName . '::class',

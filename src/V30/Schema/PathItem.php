@@ -78,6 +78,11 @@ class PathItem
     protected $operations = [];
 
     /**
+     * @var string|null
+     */
+    protected $xHandler;
+
+    /**
      * @return string
      */
     public function getRef(): string
@@ -370,5 +375,23 @@ class PathItem
     public function getOperations(): array
     {
         return $this->operations;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getXHandler(): ?string
+    {
+        return $this->xHandler;
+    }
+
+    /**
+     * @param string|null $xhandler
+     * @return PathItem
+     */
+    public function setXHandler(?string $xHandler): PathItem
+    {
+        $this->xHandler = $xHandler;
+        return $this;
     }
 }

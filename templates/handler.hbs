@@ -16,6 +16,9 @@ class {{className}} implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request) : ResponseInterface
     {
+        {{#if isSingleOperation}}
+        return new EmptyResponse(501);
+        {{else}}
         switch ($request->getMethod()) {
             {{#operationMethods}}
             case '{{.}}':
@@ -26,7 +29,9 @@ class {{className}} implements RequestHandlerInterface
                 return new EmptyResponse(405);
                 break;
         }
+        {{/if}}
     }
+    {{#unless isSingleOperation}}
     {{#operationMethods}}
 
     /**
@@ -39,4 +44,5 @@ class {{className}} implements RequestHandlerInterface
         return new EmptyResponse(501);
     }
     {{/operationMethods}}
+    {{/unless}}
 }

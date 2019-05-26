@@ -114,6 +114,10 @@ class PathItemHydrator implements HydratorInterface
             }
         }
 
+        if (isset($data['x-handler'])) {
+            $object->setXHandler($data['x-handler']);
+        }
+
         return $object;
     }
 
@@ -139,7 +143,8 @@ class PathItemHydrator implements HydratorInterface
             'patch' => $object->getGet()? $this->operationHydrator->extract($object->getPatch()):null,
             'trace' => $object->getGet()? $this->operationHydrator->extract($object->getTrace()):null,
             'servers' => [],
-            'parameters' => []
+            'parameters' => [],
+            'xhandler' => $object->getXHandler()
         ];
 
         foreach ($object->getServers() as $server) {
