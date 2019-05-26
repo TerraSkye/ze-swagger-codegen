@@ -41,7 +41,7 @@ class RequestBodyHydrator implements HydratorInterface
             }
         }
 
-        $object->setRequired($data['required']);
+        $object->setRequired($data['required'] ?? false);
 
         return $object;
     }
