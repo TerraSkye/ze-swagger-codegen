@@ -13,4 +13,9 @@ class Validator
      * @Required
      **/
     public $name;
+
+    /**
+     * @var array
+     */
+    public $options = [];
 }
