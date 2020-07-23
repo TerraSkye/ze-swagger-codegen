@@ -17,7 +17,7 @@
         "laminas/laminas-filter": "^2.8",
         "laminas/laminas-diactoros": "^1.7.1 || ^2.0",
         "fig/http-message-util": "^1.1",
-        "laminas/laminas-dependency-plugin": "^1.0"
+        "laminas/laminas-dependency-plugin": "^1.0 || ^0.2."
     },
     "require-dev": {
         "filp/whoops": "^2.1.12",
