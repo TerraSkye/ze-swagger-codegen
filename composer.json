@@ -6,7 +6,7 @@
     "license": "BSD-3-Clause",
     "require": {
         "php": "^7.3",
-        "doctrine/annotations": "^1.10,
+        "doctrine/annotations": "^1.10",
         "ocramius/proxy-manager": "^2.8",
         "symfony/console": "^5.1",
         "laminas/laminas-cache": "^2.9",
