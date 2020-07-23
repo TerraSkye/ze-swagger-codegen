@@ -87,7 +87,7 @@ class ModelGeneratorSpec extends ObjectBehavior
         $templateService->render('model', [
             'className'  => $modelName,
             'namespace'  => $this->namespace . '\Model',
-            'properties' => [["name" => "name", "typeHint" => "string", "getter" => "getName", "setter" => "setName", "validators" => ["Zend\Validator\NotEmpty"]]],
+            'properties' => [["name" => "name", "typeHint" => "string", "getter" => "getName", "setter" => "setName", "validators" => ["Laminas\Validator\NotEmpty"]]],
             'hydrator' => $this->namespace . '\Hydrator\TestHydrator'
         ])->willReturn(Argument::type('string'));
 
@@ -153,7 +153,7 @@ class ModelGeneratorSpec extends ObjectBehavior
                 'defaultValue' => '[]',
                 "getter" => "getItems",
                 "setter" => "setItems",
-                "validators" => ["Zend\Validator\NotEmpty"]]
+                "validators" => ["Laminas\Validator\NotEmpty"]]
         ]);
     }
 }

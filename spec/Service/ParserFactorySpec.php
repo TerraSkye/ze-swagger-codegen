@@ -7,7 +7,7 @@ use Swagger\Parser;
 use Swagger\Service\ParserFactory;
 use PhpSpec\ObjectBehavior;
 use Swagger\V30\Hydrator\DocumentHydrator;
-use Zend\Hydrator\HydratorPluginManager;
+use Laminas\Hydrator\HydratorPluginManager;
 
 class ParserFactorySpec extends ObjectBehavior
 {

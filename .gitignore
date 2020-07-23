@@ -10,3 +10,4 @@ coverage.xml
 /data
 /src/App
 infection.log
+.idea

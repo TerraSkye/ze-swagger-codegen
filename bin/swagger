@@ -2,14 +2,14 @@
 <?php
 declare(strict_types=1);
 
-use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Hydrator\ConfigProvider as HydratorConfigProvider;
-use Zend\Cache\ConfigProvider as CacheConfigProvider;
+use Laminas\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Hydrator\ConfigProvider as HydratorConfigProvider;
+use Laminas\Cache\ConfigProvider as CacheConfigProvider;
 use Swagger\V30\Hydrator;
 use Swagger\V30\Hydrator\ReflectionBasedAbstractFactory;
-use Zend\ServiceManager\Proxy\LazyServiceFactory;
-use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
+use Laminas\ServiceManager\Proxy\LazyServiceFactory;
+use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
 use Symfony\Component\Console\Application;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -60,7 +60,7 @@ $serviceManager = new ServiceManager(array_replace_recursive(
             \Swagger\Generator\DependenciesGenerator::class => ZendReflectionFactory::class,
             \Swagger\Generator\ApiGenerator::class => ZendReflectionFactory::class,
             \Swagger\Ignore::class => \Swagger\Service\IgnoreFactory::class,
-            \Zend\Validator\ValidatorChain::class => \Swagger\Service\ValidatorChainFactory::class,
+            \Laminas\Validator\ValidatorChain::class => \Swagger\Service\ValidatorChainFactory::class,
             EventDispatcher::class => InvokableFactory::class,
             \Swagger\Parser::class => \Swagger\Service\ParserFactory::class,
             \Swagger\Composer::class => InvokableFactory::class,
@@ -71,7 +71,7 @@ $serviceManager = new ServiceManager(array_replace_recursive(
             EventDispatcherInterface::class => EventDispatcher::class
         ],
         'shared' => [
-            \Zend\Validator\ValidatorChain::class => false,
+            \Laminas\Validator\ValidatorChain::class => false,
             InputDefinition::class => false
         ],
         'services' => [

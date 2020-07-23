@@ -3,7 +3,7 @@
 namespace Swagger\Service;
 
 use Psr\Container\ContainerInterface;
-use Zend\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorChain;
 
 class ValidatorChainFactory
 {

@@ -5,15 +5,15 @@ namespace spec\Swagger\Middleware;
 use App\Hydrator\TestHydrator;
 
 use Psr\Container\ContainerInterface;
-use Zend\Hydrator\HydratorPluginManager;
+use Laminas\Hydrator\HydratorPluginManager;
 use Swagger\Middleware\ModelMiddleware;
 use Swagger\Middleware\ModelMiddlewareFactory;
 use PhpSpec\ObjectBehavior;
 use Doctrine\Common\Annotations\Reader;
 use Swagger\Annotation;
 use Prophecy\Argument;
-use Zend\Validator\ValidatorChain;
-use Zend\Validator\ValidatorPluginManager;
+use Laminas\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorPluginManager;
 use App\Validator\TestValidator;
 
 class ModelMiddlewareFactorySpec extends ObjectBehavior

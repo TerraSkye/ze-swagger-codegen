@@ -126,7 +126,7 @@ class ModelGenerator extends AbstractGenerator
                 $validators = [];
 
                 if ($schema->isRequired($name)) {
-                    $validators[] = \Zend\Validator\NotEmpty::class;
+                    $validators[] = \Laminas\Validator\NotEmpty::class;
                 }
 
                 $properties[] = [
@@ -142,7 +142,7 @@ class ModelGenerator extends AbstractGenerator
                 $validators = [];
 
                 if ($schema->isRequired(lcfirst($name) . 's')) {
-                    $validators[] = \Zend\Validator\NotEmpty::class;
+                    $validators[] = \Laminas\Validator\NotEmpty::class;
                 }
 
                 $name = substr($schema->getItems()->getRef(), strlen('#/components/schemas/'));

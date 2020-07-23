@@ -5,8 +5,8 @@ namespace spec\Swagger\Service;
 use Psr\Container\ContainerInterface;
 use Swagger\Service\ValidatorChainFactory;
 use PhpSpec\ObjectBehavior;
-use Zend\Validator\ValidatorChain;
-use Zend\Validator\ValidatorPluginManager;
+use Laminas\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorPluginManager;
 
 class ValidatorChainFactorySpec extends ObjectBehavior
 {

@@ -2,7 +2,7 @@
 
 namespace Swagger\Generator;
 
-use Zend\Filter\Word\UnderscoreToCamelCase;
+use Laminas\Filter\Word\UnderscoreToCamelCase;
 
 abstract class AbstractGenerator
 {

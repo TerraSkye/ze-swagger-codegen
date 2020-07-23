@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 use Swagger\Annotation\Hydrator;
 use Swagger\Annotation\Validator;
 use Swagger\Annotation\Validators;
-use Zend\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorChain;
 
 class ModelMiddlewareFactory
 {

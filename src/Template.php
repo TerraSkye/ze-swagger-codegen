@@ -8,7 +8,7 @@ use Closure;
 use LightnCandy\LightnCandy;
 use Swagger\Exception\CodegenException;
 
-use Zend\Cache\Storage\StorageInterface;
+use Laminas\Cache\Storage\StorageInterface;
 
 class Template
 {
