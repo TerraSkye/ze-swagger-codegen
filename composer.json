@@ -8,7 +8,7 @@
         "php": "^7.3",
         "doctrine/annotations": "^1.6",
         "ocramius/proxy-manager": "^2.1",
-        "symfony/console": "^3.0 || ^4.0",
+        "symfony/console": "^5.1",
         "laminas/laminas-cache": "^2.7",
         "laminas/laminas-hydrator": "^2.3",
         "laminas/laminas-servicemanager": "^3.3",
