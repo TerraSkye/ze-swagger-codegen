@@ -5,29 +5,27 @@
     "homepage": "https://github.com/BradCrumb/ze-swagger-codegen",
     "license": "BSD-3-Clause",
     "require": {
-        "php": "^7.3",
+        "php": "^8.1",
         "doctrine/annotations": "^1.10",
-        "ocramius/proxy-manager": "^2.8",
         "symfony/console": "^5.1",
-        "laminas/laminas-cache": "^2.9",
-        "laminas/laminas-hydrator": "^2.4",
-        "laminas/laminas-servicemanager": "^3.4",
+        "laminas/laminas-hydrator": "^4",
+        "laminas/laminas-servicemanager": "^3.3",
         "laminas/laminas-validator": "^2.13",
         "zordius/lightncandy": "^1.2",
         "laminas/laminas-filter": "^2.9",
         "laminas/laminas-diactoros": "^1.7.1 || ^2.0",
         "fig/http-message-util": "^1.1",
-        "laminas/laminas-dependency-plugin": "^1.0 || ^0.2."
+        "laminas/laminas-dependency-plugin": "^2.1"
     },
     "require-dev": {
         "filp/whoops": "^2.1.12",
         "mikey179/vfsstream": "^1.6",
         "guzzlehttp/guzzle": "^6.3",
-        "friends-of-phpspec/phpspec-code-coverage": "^4.3",
+        "friends-of-phpspec/phpspec-code-coverage": "^5",
         "phpstan/phpstan": "^0.12.3",
-        "squizlabs/php_codesniffer": "^2.9.1",
+        "squizlabs/php_codesniffer": "^3.4",
         "psr/http-server-middleware": "^1.0",
-        "infection/infection": "^0.15.0"
+        "infection/infection": "^0.26"
     },
     "autoload": {
         "psr-4": {
@@ -49,5 +47,11 @@
     ],
     "suggests": {
         "ext-yaml": "To support parsing of yml files"
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "laminas/laminas-dependency-plugin": true
+        }
     }
 }
