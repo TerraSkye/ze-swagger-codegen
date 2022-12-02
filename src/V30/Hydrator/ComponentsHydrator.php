@@ -2,7 +2,7 @@
 
 namespace Swagger\V30\Hydrator;
 
-use Zend\Hydrator\HydratorInterface;
+use Laminas\Hydrator\HydratorInterface;
 use Swagger\V30\Schema\Link;
 use Swagger\V30\Schema\Header;
 use Swagger\V30\Schema\Schema;

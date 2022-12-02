@@ -6,7 +6,7 @@ use Swagger\Exception\CodegenException;
 use Swagger\Template;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Zend\Cache\Storage\StorageInterface;
+use Laminas\Cache\Storage\StorageInterface;
 use org\bovigo\vfs\vfsStream;
 
 class TemplateSpec extends ObjectBehavior

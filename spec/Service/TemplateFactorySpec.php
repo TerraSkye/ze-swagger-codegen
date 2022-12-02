@@ -5,7 +5,7 @@ namespace spec\Swagger\Service;
 use Psr\Container\ContainerInterface;
 use Swagger\Service\TemplateFactory;
 use PhpSpec\ObjectBehavior;
-use Zend\Cache\Storage\StorageInterface;
+use Laminas\Cache\Storage\StorageInterface;
 use Swagger\Template;
 
 class TemplateFactorySpec extends ObjectBehavior

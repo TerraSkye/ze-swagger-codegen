@@ -31,7 +31,7 @@ class Test
 
 namespace App\Hydrator;
 
-use Zend\Hydrator\HydratorInterface;
+use Laminas\Hydrator\HydratorInterface;
 
 class TestHydrator implements HydratorInterface
 {
@@ -48,7 +48,7 @@ class TestHydrator implements HydratorInterface
 
 namespace App\Validator;
 
-use Zend\Validator\ValidatorInterface;
+use Laminas\Validator\ValidatorInterface;
 
 class TestValidator implements ValidatorInterface
 {

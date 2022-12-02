@@ -3,7 +3,7 @@
 namespace Swagger\V30\Hydrator;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
+use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory as ZendReflectionFactory;
 
 class ReflectionBasedAbstractFactory extends ZendReflectionFactory
 {

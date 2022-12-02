@@ -5,30 +5,29 @@
     "homepage": "https://github.com/BradCrumb/ze-swagger-codegen",
     "license": "BSD-3-Clause",
     "require": {
-        "php": "^7.1",
-        "doctrine/annotations": "^1.6",
-        "ocramius/proxy-manager": "^2.1",
-        "roave/security-advisories": "dev-master",
-        "symfony/console": "^3.0 || ^4.0",
-        "zendframework/zend-cache": "^2.7",
-        "zendframework/zend-hydrator": "^2.3",
-        "zendframework/zend-servicemanager": "^3.3",
-        "zendframework/zend-validator": "^2.10",
+        "php": "^7.3",
+        "doctrine/annotations": "^1.10",
+        "ocramius/proxy-manager": "^2.8",
+        "symfony/console": "^5.1",
+        "laminas/laminas-cache": "^2.9",
+        "laminas/laminas-hydrator": "^2.4",
+        "laminas/laminas-servicemanager": "^3.4",
+        "laminas/laminas-validator": "^2.13",
         "zordius/lightncandy": "^1.2",
-        "zendframework/zend-filter": "^2.8",
-        "zendframework/zend-diactoros": "^1.7",
-        "fig/http-message-util": "^1.1"
+        "laminas/laminas-filter": "^2.9",
+        "laminas/laminas-diactoros": "^1.7.1 || ^2.0",
+        "fig/http-message-util": "^1.1",
+        "laminas/laminas-dependency-plugin": "^1.0 || ^0.2."
     },
     "require-dev": {
         "filp/whoops": "^2.1.12",
         "mikey179/vfsstream": "^1.6",
         "guzzlehttp/guzzle": "^6.3",
-        "phpspec/phpspec": "^4.3",
-        "leanphp/phpspec-code-coverage": "^4.2",
-        "phpstan/phpstan": "^0.10.0",
+        "friends-of-phpspec/phpspec-code-coverage": "^4.3",
+        "phpstan/phpstan": "^0.12.3",
         "squizlabs/php_codesniffer": "^2.9.1",
         "psr/http-server-middleware": "^1.0",
-        "infection/infection": "^0.12.2"
+        "infection/infection": "^0.15.0"
     },
     "autoload": {
         "psr-4": {

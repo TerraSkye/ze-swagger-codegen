@@ -2,12 +2,12 @@
 
 namespace spec\Swagger\Middleware;
 
-use Zend\Hydrator\HydratorInterface;
+use Laminas\Hydrator\HydratorInterface;
 use Swagger\Middleware\ModelMiddleware;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use App\Model\Test;
-use Zend\Validator\ValidatorChain;
+use Laminas\Validator\ValidatorChain;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;

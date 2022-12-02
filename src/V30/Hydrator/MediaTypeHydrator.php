@@ -3,7 +3,7 @@
 namespace Swagger\V30\Hydrator;
 
 use Swagger\V30\Schema\MediaType;
-use Zend\Hydrator\HydratorInterface;
+use Laminas\Hydrator\HydratorInterface;
 use Swagger\V30\Schema\Schema;
 use Swagger\V30\Schema\Example;
 use Swagger\V30\Schema\Encoding;

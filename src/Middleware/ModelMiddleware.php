@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Swagger\Middleware;
 
 use RuntimeException;
-use Zend\Hydrator\HydratorInterface;
+use Laminas\Hydrator\HydratorInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Zend\Validator\ValidatorChain;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Validator\ValidatorChain;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class ModelMiddleware implements MiddlewareInterface
 {
